@@ -1,0 +1,922 @@
+[
+    {
+        "product_id": "ai_domain_name",
+        "name": "AI Domain Name",
+        "category": "website",
+        "transformation_stage": "digitisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "startups",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business does not have a professional domain name",
+            "Business needs help generating domain name ideas",
+            "Business wants to establish an online identity"
+        ],
+        "benefits": [
+            "AI-powered domain search",
+            "Instant domain name suggestions",
+            "Helps establish a digital business identity"
+        ],
+        "prerequisites": [
+            "Business needs or wants an online presence"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "ai_web_hosting",
+        "name": "AI Web Hosting",
+        "category": "website",
+        "transformation_stage": "digitisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "startups",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business does not have a website",
+            "Business lacks technical expertise to build a website",
+            "Website is difficult to manage",
+            "Business needs website performance and security",
+            "Business needs automated website backup"
+        ],
+        "benefits": [
+            "AI-powered website tools",
+            "AI-generated domain suggestions",
+            "LiteSpeed and SSD-based performance",
+            "SSL",
+            "Anti-spam protection",
+            "Automated backups",
+            "Website security features",
+            "Dedicated account manager on selected plans"
+        ],
+        "prerequisites": [
+            "Business needs a website or web hosting"
+        ],
+        "pricing": "From RM21.99/month for WP 17 AI Beginner; other plans vary",
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/ai-hosting",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "email_hosting",
+        "name": "Business Email / Email Hosting",
+        "category": "productivity",
+        "transformation_stage": "digitisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "startups",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business uses non-professional email addresses",
+            "Business needs email accounts under its own domain",
+            "Business needs managed business email infrastructure"
+        ],
+        "benefits": [
+            "Professional business email",
+            "Custom domain email",
+            "Email hosting and management",
+            "Spam protection on supported plans"
+        ],
+        "prerequisites": [
+            "Business needs a registered domain"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "vps_server",
+        "name": "VPS / Server / Colocation",
+        "category": "cloud",
+        "transformation_stage": "digitisation",
+        "target_business": [
+            "services",
+            "ecommerce",
+            "technology",
+            "smes",
+            "enterprise"
+        ],
+        "problems_solved": [
+            "Business needs more computing resources than shared hosting",
+            "Business requires greater control over infrastructure",
+            "Business needs dedicated or virtual server resources",
+            "Business wants to host business applications"
+        ],
+        "benefits": [
+            "Dedicated or virtual infrastructure options",
+            "Greater control over server resources",
+            "Infrastructure suitable for websites and applications",
+            "Scalable infrastructure options"
+        ],
+        "prerequisites": [
+            "Business has a workload requiring server infrastructure"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "ecommerce_design",
+        "name": "Ecommerce Design",
+        "category": "website",
+        "transformation_stage": "digitisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "ecommerce",
+            "services"
+        ],
+        "problems_solved": [
+            "Business wants to start selling online",
+            "Business lacks an ecommerce website",
+            "Existing online store needs professional design"
+        ],
+        "benefits": [
+            "Ecommerce website design",
+            "Supports online business presence",
+            "Enables businesses to establish online selling capabilities"
+        ],
+        "prerequisites": [
+            "Business intends to sell products or services online"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "microsoft_365",
+        "name": "Microsoft 365",
+        "category": "productivity",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "smes",
+            "enterprise"
+        ],
+        "problems_solved": [
+            "Employees use fragmented productivity tools",
+            "Business needs professional email and collaboration",
+            "Teams need cloud-based document access",
+            "Employees need remote collaboration"
+        ],
+        "benefits": [
+            "Microsoft productivity applications",
+            "Email and collaboration",
+            "Cloud-based file storage",
+            "Microsoft Teams",
+            "Business productivity and collaboration"
+        ],
+        "prerequisites": [
+            "Business needs Microsoft 365 user accounts"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "google_workspace",
+        "name": "Google Workspace",
+        "category": "productivity",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "startups",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business uses fragmented collaboration tools",
+            "Employees need shared cloud documents and storage",
+            "Business needs professional email",
+            "Teams need remote collaboration",
+            "Business wants integrated AI productivity features"
+        ],
+        "benefits": [
+            "Professional business email",
+            "Cloud storage",
+            "Documents, spreadsheets and presentations",
+            "Video meetings",
+            "Real-time collaboration",
+            "Security and administration controls",
+            "Gemini AI features in supported plans"
+        ],
+        "prerequisites": [
+            "Business needs user accounts and business email"
+        ],
+        "pricing": "From RM12.99/user/month for Business Starter; RM29.99/user/month for Business Standard; RM97.99/user/month for Business Plus",
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/google-workspace",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "lark",
+        "name": "Lark",
+        "category": "productivity",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "startups",
+            "smes"
+        ],
+        "problems_solved": [
+            "Team communication is fragmented",
+            "Employees switch between multiple applications",
+            "Business processes rely on manual workflows",
+            "Approvals and collaboration are inefficient",
+            "Business wants integrated workplace tools"
+        ],
+        "benefits": [
+            "Team messaging",
+            "Documents and collaboration",
+            "Video meetings",
+            "Project and task management",
+            "Workflow automation",
+            "OKR management",
+            "AI-powered workplace capabilities"
+        ],
+        "prerequisites": [
+            "Business has employees or teams requiring collaboration"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "digital_marketing",
+        "name": "Digital Marketing",
+        "category": "other",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business has weak online visibility",
+            "Business struggles to attract online customers",
+            "Business needs digital advertising",
+            "Business lacks a coordinated digital marketing strategy"
+        ],
+        "benefits": [
+            "Search engine marketing",
+            "Social media marketing",
+            "SEO",
+            "Online advertising",
+            "Marketing analytics and reporting",
+            "Content and campaign support"
+        ],
+        "prerequisites": [
+            "Business has a digital presence or marketing objective"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "bulk_sms",
+        "name": "Bulk SMS",
+        "category": "other",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business needs to communicate with many customers",
+            "Customer outreach is inefficient",
+            "Business needs direct promotional or transactional messaging"
+        ],
+        "benefits": [
+            "Bulk customer communication",
+            "SMS-based marketing and notifications",
+            "Direct customer outreach"
+        ],
+        "prerequisites": [
+            "Business has customer contacts and a legitimate messaging use case"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "email_marketing",
+        "name": "Email Marketing",
+        "category": "other",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business struggles to maintain customer engagement",
+            "Business needs scalable marketing communication",
+            "Customer outreach is inconsistent"
+        ],
+        "benefits": [
+            "Email-based customer communication",
+            "Marketing campaign support",
+            "Customer engagement"
+        ],
+        "prerequisites": [
+            "Business has an appropriate customer mailing list"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "freshdesk",
+        "name": "FreshDesk",
+        "category": "crm",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Customer enquiries are difficult to manage",
+            "Customer support is fragmented",
+            "Support teams need better issue tracking",
+            "Business wants to improve customer service responsiveness"
+        ],
+        "benefits": [
+            "Helpdesk functionality",
+            "Centralised customer support",
+            "Ticket management",
+            "Improved support workflows"
+        ],
+        "prerequisites": [
+            "Business receives recurring customer enquiries or support requests"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "freshchat",
+        "name": "FreshChat",
+        "category": "crm",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce"
+        ],
+        "problems_solved": [
+            "Website visitors cannot easily contact the business",
+            "Customer conversations are fragmented",
+            "Business wants to improve digital customer engagement"
+        ],
+        "benefits": [
+            "Chat-based customer engagement",
+            "Website customer conversations",
+            "Chatbot capabilities",
+            "Customer engagement support"
+        ],
+        "prerequisites": [
+            "Business has digital customer touchpoints"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "freshsales",
+        "name": "FreshSales CRM",
+        "category": "crm",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Leads are difficult to track",
+            "Sales activities are poorly organised",
+            "Customer information is fragmented",
+            "Business lacks sales pipeline visibility"
+        ],
+        "benefits": [
+            "CRM capabilities",
+            "Lead management",
+            "Sales pipeline management",
+            "Customer information management",
+            "Sales process support"
+        ],
+        "prerequisites": [
+            "Business has a sales or customer acquisition process"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "freshservice",
+        "name": "FreshService",
+        "category": "other",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "services",
+            "smes",
+            "enterprise",
+            "technology"
+        ],
+        "problems_solved": [
+            "IT incidents are difficult to track",
+            "IT assets are poorly managed",
+            "Internal IT support is inefficient",
+            "Business lacks structured IT service management"
+        ],
+        "benefits": [
+            "IT service management",
+            "IT asset management",
+            "Incident tracking",
+            "Service request management",
+            "IT operations support"
+        ],
+        "prerequisites": [
+            "Business has internal IT operations or recurring IT support requirements"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "seo_tool",
+        "name": "SEO Tool",
+        "category": "other",
+        "transformation_stage": "digitalisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business has poor search visibility",
+            "Business does not know which keywords to target",
+            "Business needs to monitor SEO performance"
+        ],
+        "benefits": [
+            "SEO analysis",
+            "Keyword-related insights",
+            "Search visibility support"
+        ],
+        "prerequisites": [
+            "Business has a website or online presence"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "heylink",
+        "name": "HeyLink",
+        "category": "website",
+        "transformation_stage": "digitisation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "creators",
+            "ecommerce"
+        ],
+        "problems_solved": [
+            "Business has links scattered across different platforms",
+            "Business needs a centralised online link page",
+            "Business wants to connect websites, stores, videos and social profiles"
+        ],
+        "benefits": [
+            "Centralised link management",
+            "Custom domain support",
+            "Customisable landing page",
+            "Connects online stores, websites, videos and social posts"
+        ],
+        "prerequisites": [
+            "Business has multiple online destinations to organise"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "aws",
+        "name": "AWS",
+        "category": "cloud",
+        "transformation_stage": "digital_transformation",
+        "target_business": [
+            "technology",
+            "services",
+            "ecommerce",
+            "smes",
+            "enterprise"
+        ],
+        "problems_solved": [
+            "Business needs scalable cloud infrastructure",
+            "Business needs to deploy applications in the cloud",
+            "Business needs infrastructure that can scale with demand",
+            "Business wants cloud migration or managed cloud support"
+        ],
+        "benefits": [
+            "Cloud infrastructure",
+            "Scalable computing resources",
+            "Cloud application deployment",
+            "Cloud migration and managed services through Exabytes"
+        ],
+        "prerequisites": [
+            "Business has a workload suitable for cloud deployment"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/enterprise/cloud",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "ecloud",
+        "name": "eCloud",
+        "category": "cloud",
+        "transformation_stage": "digital_transformation",
+        "target_business": [
+            "smes",
+            "enterprise",
+            "technology",
+            "services"
+        ],
+        "problems_solved": [
+            "Business needs cloud migration",
+            "Business needs managed private, public or hybrid cloud infrastructure",
+            "Business wants to control IT expenditure",
+            "Business lacks cloud operations expertise"
+        ],
+        "benefits": [
+            "Multi-cloud managed services",
+            "Cloud migration",
+            "Managed private, public and hybrid cloud operations",
+            "Flexible cloud infrastructure",
+            "Managed operational support"
+        ],
+        "prerequisites": [
+            "Business has workloads or infrastructure suitable for cloud migration"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/enterprise/cloud",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "exabytes_vision_cloud",
+        "name": "Exabytes Vision Cloud",
+        "category": "cloud",
+        "transformation_stage": "digital_transformation",
+        "target_business": [
+            "smes",
+            "enterprise",
+            "technology",
+            "services"
+        ],
+        "problems_solved": [
+            "Business needs to run critical workloads",
+            "Business needs scalable infrastructure",
+            "Business needs improved availability",
+            "Business lacks internal cloud infrastructure expertise"
+        ],
+        "benefits": [
+            "Managed enterprise cloud",
+            "Availability",
+            "Scalability",
+            "Security",
+            "Operational support"
+        ],
+        "prerequisites": [
+            "Business has critical workloads suitable for enterprise cloud"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/enterprise/cloud",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "ecloudapp",
+        "name": "eCloudApp",
+        "category": "cloud",
+        "transformation_stage": "digital_transformation",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "technology",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business needs cloud-based business applications",
+            "Business wants accessible applications across devices",
+            "Business needs integrated cloud applications",
+            "Business wants to use data and AI for operational improvement"
+        ],
+        "benefits": [
+            "Cloud-native business applications",
+            "CRM capabilities",
+            "Office productivity solutions",
+            "ML and AI cloud solutions",
+            "IoT and data analytics capabilities",
+            "Helpdesk and chatbot solutions"
+        ],
+        "prerequisites": [
+            "Business has a business process suitable for cloud application deployment"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/enterprise/cloudapp",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "exabytes_commerce",
+        "name": "Exabytes Commerce",
+        "category": "other",
+        "transformation_stage": "digital_transformation",
+        "target_business": [
+            "retail",
+            "ecommerce",
+            "f&b"
+        ],
+        "problems_solved": [
+            "Retail business needs online and in-store commerce",
+            "Business operates across disconnected sales channels",
+            "Retailer wants to expand digital commerce"
+        ],
+        "benefits": [
+            "Online commerce",
+            "In-store commerce",
+            "Omnichannel retail capabilities",
+            "Centralised commerce experience"
+        ],
+        "prerequisites": [
+            "Business operates or intends to operate retail or ecommerce channels"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "e_secure",
+        "name": "eSecure",
+        "category": "security",
+        "transformation_stage": "cybersecurity",
+        "target_business": [
+            "smes",
+            "enterprise",
+            "technology",
+            "services",
+            "ecommerce"
+        ],
+        "problems_solved": [
+            "Business needs stronger infrastructure security",
+            "Business needs managed security capabilities",
+            "Business wants to improve cyber resilience"
+        ],
+        "benefits": [
+            "Managed security capabilities",
+            "Enterprise security support",
+            "Cybersecurity and resilience services"
+        ],
+        "prerequisites": [
+            "Business has infrastructure or workloads requiring security protection"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "medium"
+    },
+    {
+        "product_id": "acronis_cyberprotect",
+        "name": "Acronis CyberProtect",
+        "category": "security",
+        "transformation_stage": "cybersecurity",
+        "target_business": [
+            "smes",
+            "enterprise",
+            "services",
+            "technology"
+        ],
+        "problems_solved": [
+            "Business needs data backup",
+            "Business needs protection against data loss",
+            "Business needs cyber protection for endpoints"
+        ],
+        "benefits": [
+            "Cloud backup",
+            "Cyber protection",
+            "Data protection"
+        ],
+        "prerequisites": [
+            "Business has systems or data requiring backup and protection"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "ssl_certificate",
+        "name": "SSL Certificate",
+        "category": "security",
+        "transformation_stage": "cybersecurity",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Website needs encrypted connections",
+            "Business needs to improve website security",
+            "Business needs HTTPS"
+        ],
+        "benefits": [
+            "Encrypted website connections",
+            "HTTPS security",
+            "Website trust and security"
+        ],
+        "prerequisites": [
+            "Business has a domain or website"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "email_spam_filtering",
+        "name": "Email Spam Filtering",
+        "category": "security",
+        "transformation_stage": "cybersecurity",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Business receives spam email",
+            "Business is exposed to malicious or unwanted email",
+            "Employees need cleaner and safer business email"
+        ],
+        "benefits": [
+            "Spam filtering",
+            "Email protection",
+            "Reduced exposure to unwanted email"
+        ],
+        "prerequisites": [
+            "Business uses email"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "sucuri_website_security",
+        "name": "Sucuri Website Security",
+        "category": "security",
+        "transformation_stage": "cybersecurity",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes"
+        ],
+        "problems_solved": [
+            "Website is exposed to cyber threats",
+            "Website needs malware protection",
+            "Business needs website security monitoring"
+        ],
+        "benefits": [
+            "Website security",
+            "Malware protection",
+            "Website monitoring and protection"
+        ],
+        "prerequisites": [
+            "Business operates a website"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    },
+    {
+        "product_id": "cloudflare",
+        "name": "Cloudflare",
+        "category": "security",
+        "transformation_stage": "cybersecurity",
+        "target_business": [
+            "retail",
+            "f&b",
+            "services",
+            "ecommerce",
+            "smes",
+            "enterprise"
+        ],
+        "problems_solved": [
+            "Website is slow",
+            "Website is exposed to malicious traffic",
+            "Business needs DDoS protection",
+            "Business needs web application security"
+        ],
+        "benefits": [
+            "CDN and performance optimisation",
+            "DDoS protection",
+            "Web Application Firewall",
+            "Bot protection",
+            "Website security and reliability"
+        ],
+        "prerequisites": [
+            "Business operates a website or web application"
+        ],
+        "pricing": null,
+        "grant_categories": [],
+        "source_url": "https://www.exabytes.my/web-security/cloudflare-web-performance-booster",
+        "source_date": "2026-09-15",
+        "confidence": "high"
+    }
+]

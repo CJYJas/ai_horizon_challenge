@@ -1,0 +1,83 @@
+{
+    "government_support": [
+        {
+            "support_id": "smecorp_sfsme_2_0",
+            "programme": "SFSME 2.0",
+            "support_type": "financing",
+            "source": "SME Corp Malaysia",
+            "source_url": "https://www.smecorp.gov.my/",
+            "last_verified": "2026-09-15",
+            "conditions": [
+                "Available to eligible SMEs subject to the programme's current requirements.",
+                "Supports areas including automation, digitalisation, innovation and technology adoption.",
+                "Applications are subject to available funds and programme conditions."
+            ],
+            "coverage": "Financing for eligible SME business activities including automation, digitalisation, innovation and technology adoption.",
+            "maximum_amount": "RM5,000,000",
+            "minimum_amount": "RM50,000",
+            "eligible_categories": [
+                "automation",
+                "digitalisation",
+                "innovation",
+                "technology_adoption"
+            ],
+            "eligibility_note": "Potentially eligible — eligibility is not guaranteed and must be confirmed against the current programme requirements.",
+            "system_use": "Use as a potential financing/support option when the diagnosis indicates digitalisation, automation, innovation or technology adoption needs."
+        },
+        {
+            "support_id": "hrd_corp_claimable_courses",
+            "programme": "HRD Corp Claimable Courses",
+            "support_type": "training_support",
+            "source": "HRD Corp",
+            "source_url": "https://hrdcorp.gov.my/",
+            "last_verified": "2026-09-15",
+            "conditions": [
+                "Applicable to eligible employers and training programmes under HRD Corp requirements.",
+                "Training must satisfy the relevant HRD Corp scheme and claim requirements.",
+                "Claimability depends on the applicable training scheme, course and employer eligibility."
+            ],
+            "coverage": "Support for eligible employee training and development costs under the applicable HRD Corp scheme.",
+            "maximum_amount": null,
+            "eligible_categories": [
+                "employee_training",
+                "digital_skills",
+                "technology_training",
+                "ai_training",
+                "data_skills",
+                "productivity_training"
+            ],
+            "eligibility_note": "Potentially eligible — the system must not guarantee claimability.",
+            "system_use": "Recommend when the SME's main transformation gap is employee capability, digital skills or technology adoption through training."
+        },
+        {
+            "support_id": "hrd_corp_sbl",
+            "programme": "Skim Bantuan Latihan (SBL)",
+            "support_type": "training_support",
+            "source": "HRD Corp",
+            "source_url": "https://hrdcorp.gov.my/",
+            "last_verified": "2026-09-15",
+            "conditions": [
+                "Subject to HRD Corp eligibility and scheme requirements.",
+                "Training and claims must comply with the applicable HRD Corp requirements.",
+                "Actual support depends on the approved training arrangement and applicable cost limits."
+            ],
+            "coverage": "Training support for eligible employers under the SBL scheme.",
+            "maximum_amount": null,
+            "eligible_categories": [
+                "employee_training",
+                "digital_skills",
+                "technology_training",
+                "productivity_training"
+            ],
+            "eligibility_note": "Potentially eligible — eligibility and claim amount must be confirmed with HRD Corp.",
+            "system_use": "Use when the recommended transformation requires employee training or capability development."
+        }
+    ],
+    "rules": {
+        "never_guarantee_eligibility": true,
+        "display_eligibility_label": "Potentially eligible",
+        "verify_before_application": true,
+        "last_verified_required": true,
+        "distinguish_support_types": true
+    }
+}

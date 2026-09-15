@@ -1,0 +1,451 @@
+{
+    "version": "1.0.0",
+    "last_updated": "2026-09-15",
+    "maturity_scoring": {
+        "scale": {
+            "min": 0,
+            "max": 5
+        },
+        "dimensions": {
+            "digital_presence": {
+                "weight": 1.0,
+                "description": "How effectively the business establishes and maintains its digital presence.",
+                "rules": [
+                    {
+                        "condition": "no_website_or_online_presence",
+                        "score": 1
+                    },
+                    {
+                        "condition": "basic_website_or_social_media_only",
+                        "score": 2
+                    },
+                    {
+                        "condition": "active_website_and_social_media",
+                        "score": 3
+                    },
+                    {
+                        "condition": "active_website_with_online_visibility_tools_or_analytics",
+                        "score": 4
+                    },
+                    {
+                        "condition": "integrated_digital_presence_with_active_analytics_and_online_channels",
+                        "score": 5
+                    }
+                ]
+            },
+            "productivity": {
+                "weight": 1.0,
+                "description": "How effectively the business uses digital tools to reduce manual and repetitive work.",
+                "rules": [
+                    {
+                        "condition": "mostly_manual_or_paper_based_workflows",
+                        "score": 1
+                    },
+                    {
+                        "condition": "spreadsheet_heavy_with_limited_software_usage",
+                        "score": 2
+                    },
+                    {
+                        "condition": "uses_dedicated_software_but_some_key_workflows_remain_manual",
+                        "score": 3
+                    },
+                    {
+                        "condition": "most_core_workflows_use_digital_tools_or_automation",
+                        "score": 4
+                    },
+                    {
+                        "condition": "highly_automated_and_integrated_core_workflows",
+                        "score": 5
+                    }
+                ]
+            },
+            "customer_management": {
+                "weight": 1.2,
+                "description": "How effectively the business manages leads, customers and customer interactions.",
+                "rules": [
+                    {
+                        "condition": "customer_information_is_primarily_manual_or_unstructured",
+                        "score": 1
+                    },
+                    {
+                        "condition": "customer_information_split_across_whatsapp_email_spreadsheets_or_other_channels",
+                        "score": 2
+                    },
+                    {
+                        "condition": "uses_basic_customer_management_or_crm_tools",
+                        "score": 3
+                    },
+                    {
+                        "condition": "crm_is_used_consistently_with_structured_customer_data_and_follow_up",
+                        "score": 4
+                    },
+                    {
+                        "condition": "integrated_customer_management_with_automation_and_analytics",
+                        "score": 5
+                    }
+                ]
+            },
+            "data_security": {
+                "weight": 1.0,
+                "description": "How effectively the business protects data, systems and digital operations.",
+                "rules": [
+                    {
+                        "condition": "no_regular_backup_or_basic_security_practices",
+                        "score": 1
+                    },
+                    {
+                        "condition": "basic_backup_or_security_practices_with_major_gaps",
+                        "score": 2
+                    },
+                    {
+                        "condition": "regular_backups_and_basic_security_controls",
+                        "score": 3
+                    },
+                    {
+                        "condition": "structured_backup_security_and_access_control_practices",
+                        "score": 4
+                    },
+                    {
+                        "condition": "comprehensive_security_backup_monitoring_and_recovery_practices",
+                        "score": 5
+                    }
+                ]
+            },
+            "ai_readiness": {
+                "weight": 0.8,
+                "description": "How prepared the business is to adopt AI and data-driven solutions.",
+                "rules": [
+                    {
+                        "condition": "little_or_no_digital_data_or_automation",
+                        "score": 1
+                    },
+                    {
+                        "condition": "basic_digital_tools_but_limited_structured_data_or_automation",
+                        "score": 2
+                    },
+                    {
+                        "condition": "structured_digital_data_and_some_automation",
+                        "score": 3
+                    },
+                    {
+                        "condition": "good_data_foundation_and_existing_automation_or_analytics",
+                        "score": 4
+                    },
+                    {
+                        "condition": "strong_data_foundation_automation_analytics_and_ai_adoption",
+                        "score": 5
+                    }
+                ]
+            }
+        },
+        "overall_score": {
+            "formula": "sum(dimension_score * dimension_weight) / sum(dimension_weight)"
+        },
+        "interpretation": {
+            "0": "Very low",
+            "1": "Low",
+            "2": "Developing",
+            "3": "Moderate",
+            "4": "Strong",
+            "5": "Advanced"
+        },
+        "note": "Dimension weights and scoring rules are configurable MVP business assumptions and are not externally validated benchmarks."
+    },
+    "impact_scoring": {
+        "levels": [
+            "low",
+            "medium",
+            "high"
+        ],
+        "annual_opportunity_cost_thresholds": {
+            "low": {
+                "min": 0,
+                "max": 4999
+            },
+            "medium": {
+                "min": 5000,
+                "max": 19999
+            },
+            "high": {
+                "min": 20000,
+                "max": null
+            }
+        },
+        "additional_impact_signals": {
+            "multiple_maturity_dimensions_affected": 2,
+            "high_business_disruption": true,
+            "customer_or_revenue_impact": true
+        },
+        "classification_rule": "Use annual opportunity cost as the primary impact signal. If strong business-impact evidence indicates a higher severity, the impact level may be increased according to the configured rules.",
+        "note": "Impact thresholds are configurable MVP assumptions and should be validated with competition feedback or domain experts."
+    },
+    "urgency_scoring": {
+        "levels": {
+            "low": {
+                "score": 33,
+                "signals": [
+                    "nice_to_have",
+                    "future_improvement",
+                    "minor_inconvenience",
+                    "no_current_business_disruption"
+                ]
+            },
+            "medium": {
+                "score": 66,
+                "signals": [
+                    "recurring_operational_problem",
+                    "regular_manual_work",
+                    "productivity_loss",
+                    "customer_follow_up_delays"
+                ]
+            },
+            "high": {
+                "score": 100,
+                "signals": [
+                    "currently_losing_customers",
+                    "revenue_impact",
+                    "major_operational_disruption",
+                    "critical_security_issue",
+                    "frequent_business_failure_or_downtime"
+                ]
+            }
+        },
+        "classification_rule": "Select the highest urgency level supported by explicit evidence in the SME's answers."
+    },
+    "priority_matrix": {
+        "description": "Ranks transformation opportunities using impact and urgency.",
+        "matrix": {
+            "high_high": 1,
+            "high_medium": 2,
+            "high_low": 3,
+            "medium_high": 2,
+            "medium_medium": 3,
+            "medium_low": 4,
+            "low_high": 3,
+            "low_medium": 4,
+            "low_low": 5
+        },
+        "priority_interpretation": {
+            "1": "Highest priority",
+            "2": "High priority",
+            "3": "Medium priority",
+            "4": "Lower priority",
+            "5": "Lowest priority"
+        },
+        "display_mapping": {
+            "high": {
+                "priority_ranks": [
+                    1,
+                    2
+                ],
+                "display_symbol": "🔴"
+            },
+            "medium": {
+                "priority_ranks": [
+                    3
+                ],
+                "display_symbol": "🟡"
+            },
+            "low": {
+                "priority_ranks": [
+                    4,
+                    5
+                ],
+                "display_symbol": "🟢"
+            }
+        }
+    },
+    "lead_scoring": {
+        "range": {
+            "min": 0,
+            "max": 100
+        },
+        "weights": {
+            "impact": 0.5,
+            "urgency": 0.3,
+            "digitisation_gap": 0.2
+        },
+        "normalisation": {
+            "impact": {
+                "method": "annual_opportunity_cost",
+                "thresholds": {
+                    "0": 0,
+                    "5000": 25,
+                    "10000": 50,
+                    "20000": 75,
+                    "40000": 100
+                },
+                "cap_at": 100
+            },
+            "urgency": {
+                "low": 33,
+                "medium": 66,
+                "high": 100
+            },
+            "digitisation_gap": {
+                "formula": "(5 - overall_maturity_score) / 5 * 100",
+                "minimum_maturity": 0,
+                "maximum_maturity": 5
+            }
+        },
+        "formula": "(impact_weight * impact_norm) + (urgency_weight * urgency_norm) + (digitisation_gap_weight * digitisation_gap_norm)",
+        "interpretation": {
+            "80_100": "High-priority lead",
+            "60_79": "Strong lead",
+            "40_59": "Moderate lead",
+            "0_39": "Low-priority lead"
+        },
+        "reason_rules": [
+            {
+                "condition": "impact_level_is_high",
+                "reason": "High operational impact"
+            },
+            {
+                "condition": "urgency_level_is_high",
+                "reason": "High urgency"
+            },
+            {
+                "condition": "digitisation_gap_norm_is_at_least_60",
+                "reason": "Large digitalisation gap"
+            },
+            {
+                "condition": "annual_opportunity_cost_is_at_least_20000",
+                "reason": "Significant estimated opportunity cost"
+            },
+            {
+                "condition": "multiple_maturity_dimensions_below_3",
+                "reason": "Multiple digital capability gaps"
+            }
+        ],
+        "maximum_reasons": 4,
+        "note": "Lead score is a sales prioritisation signal and is not a prediction of purchase probability."
+    },
+    "impact_simulation": {
+        "weeks_per_year": 52,
+        "inputs": [
+            "hours_per_week",
+            "hourly_rate_assumption",
+            "automation_scenario_pct"
+        ],
+        "formulas": {
+            "hours_per_year": "hours_per_week * weeks_per_year",
+            "annual_opportunity_cost": "hours_per_year * hourly_rate_assumption",
+            "recovered_hours_per_year": "hours_per_year * automation_scenario_pct",
+            "recovered_value_per_year": "recovered_hours_per_year * hourly_rate_assumption"
+        },
+        "constraints": {
+            "hours_per_week": {
+                "min": 0,
+                "max": 168
+            },
+            "hourly_rate_assumption": {
+                "min": 0
+            },
+            "automation_scenario_pct": {
+                "min": 0,
+                "max": 1
+            }
+        },
+        "display_rules": {
+            "label_as_estimate": true,
+            "show_assumptions": true,
+            "never_present_as_guaranteed_savings": true
+        },
+        "note": "Impact simulation represents estimated opportunity cost and potential recovered value. It does not guarantee actual savings."
+    },
+    "adaptive_assessment": {
+        "enabled": true,
+        "maximum_questions": 10,
+        "question_rules": [
+            "Start with basic company and digital profile information.",
+            "Identify the most likely operational bottleneck.",
+            "Detect missing information required to validate the suspected root cause.",
+            "Ask a targeted follow-up question when additional information could materially improve the diagnosis.",
+            "Re-evaluate the diagnosis after receiving the answer.",
+            "Stop when sufficient evidence exists for an MVP diagnosis."
+        ],
+        "transparency": {
+            "store_asked_reason": true,
+            "show_reason_to_user": false,
+            "use_reason_for_debugging": true
+        }
+    },
+    "diagnosis_rules": {
+        "required_chain": [
+            "evidence",
+            "problem",
+            "root_cause",
+            "business_impact",
+            "urgency",
+            "priority",
+            "recommended_solution"
+        ],
+        "minimum_evidence_per_problem": 1,
+        "rule": "A pain point should not be treated as a validated diagnosis unless there is supporting evidence from the SME's answers."
+    },
+    "recommendation_rules": {
+        "matching_priority": [
+            "root_cause",
+            "problems_solved",
+            "business_context",
+            "current_digital_tools",
+            "industry"
+        ],
+        "required_fields": [
+            "product_id",
+            "linked_pain_point",
+            "reason",
+            "expected_outcome"
+        ],
+        "rule": "Recommendations must address an identified pain point or root cause rather than being selected solely from industry."
+    },
+    "government_support_rules": {
+        "eligibility_language": "Potentially eligible",
+        "required_fields_for_display": [
+            "programme",
+            "support_type",
+            "source",
+            "last_verified",
+            "eligibility_note"
+        ],
+        "prohibited_claims": [
+            "Guaranteed approval",
+            "Guaranteed eligibility",
+            "Guaranteed funding",
+            "Guaranteed reimbursement",
+            "Guaranteed grant amount"
+        ],
+        "verification_rule": "Government support information must be checked against the latest official source before being presented as current.",
+        "matching_rule": "Government support should be matched to the transformation category or business capability being developed, not automatically to an Exabytes product."
+    },
+    "ai_boundaries": {
+        "llm_responsibilities": [
+            "Interpret SME free-text responses",
+            "Identify potential operational problems",
+            "Identify potential root causes",
+            "Identify missing information",
+            "Generate targeted follow-up questions",
+            "Explain diagnosis",
+            "Explain deterministic scoring results",
+            "Generate recommendation reasoning",
+            "Generate client-facing report",
+            "Generate sales-facing brief"
+        ],
+        "deterministic_responsibilities": [
+            "Maturity scoring",
+            "Weighted maturity calculation",
+            "Impact classification",
+            "Urgency classification",
+            "Priority calculation",
+            "Annual opportunity cost",
+            "Recovered hours",
+            "Recovered value",
+            "Lead score normalisation",
+            "Lead score calculation",
+            "Government support rule matching",
+            "Product ID validation",
+            "Input validation"
+        ],
+        "principle": "Use AI for interpretation and reasoning, while keeping financial calculations, scoring and rule-based decisions deterministic."
+    }
+}
