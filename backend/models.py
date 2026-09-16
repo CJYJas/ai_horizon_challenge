@@ -80,6 +80,7 @@ class SMEAssessment(SQLModel, table=True):
     
     lead_score: float = Field(default=0.0)
     lead_score_reasons: list = Field(default_factory=list, sa_column=Column(JSON))
+    sales_brief: dict = Field(default_factory=dict, sa_column=Column(JSON))
 
 
 # --- Pydantic Models for /data JSON loading ---

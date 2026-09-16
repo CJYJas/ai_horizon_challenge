@@ -2,7 +2,7 @@ import os
 from sqlmodel import SQLModel, create_engine, Session
 
 # SQLite Database
-DATABASE_URL = "sqlite:///./assessment.db"
+DATABASE_URL = "sqlite:///./assessment_v2.db"
 
 # Create engine
 engine = create_engine(DATABASE_URL, echo=False)
