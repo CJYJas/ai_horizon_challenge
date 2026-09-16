@@ -15,8 +15,8 @@ export const api = {
     return res.data;
   },
   
-  submitAnswer: async (id, answer) => {
-    const res = await client.post(`/assessments/${id}/answers`, { answer });
+  submitAnswer: async (id, answer, questionText) => {
+    const res = await client.post(`/assessments/${id}/answers`, { answer, question_text: questionText });
     return res.data;
   },
   

@@ -59,7 +59,8 @@ def match_products(
                     product_id=best_match.product_id,
                     linked_pain_point=pain_point.problem,
                     reason=f"Matched {best_match.name} based on the need to address: {pain_point.problem}",
-                    expected_outcome=best_match.benefits[0] if best_match.benefits else "Improved operations"
+                    expected_outcome=best_match.benefits[0] if best_match.benefits else "Improved operations",
+                    transformation_area=best_match.category
                 )
             )
             

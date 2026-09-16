@@ -5,10 +5,13 @@ from sqlmodel import SQLModel, Field, Column, JSON
 # --- Pydantic sub-models for nested JSON fields in SMEAssessment ---
 
 class CompanyProfile(BaseModel):
+    company_name: Optional[str] = None
     industry: str
     employee_count: int
     current_digital_tools: List[str]
     main_operational_problems: List[str]
+    email: Optional[str] = None
+    phone: Optional[str] = None
 
 class BusinessContext(BaseModel):
     monthly_revenue_range: Optional[str] = None
@@ -53,6 +56,7 @@ class Recommendation(BaseModel):
     linked_pain_point: str
     reason: str
     expected_outcome: str
+    transformation_area: Optional[str] = None
 
 class GovernmentSupportMatch(BaseModel):
     support_id: str

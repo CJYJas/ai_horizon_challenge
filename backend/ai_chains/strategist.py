@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.output_parsers import PydanticOutputParser
 from backend.models import TopPainPoint, Recommendation, GovernmentSupportMatch
 
 class PainPointExplanation(BaseModel):
@@ -19,6 +20,8 @@ class SalesBrief(BaseModel):
     one_line_hook: str
     why_this_lead_is_hot: List[str]
     recommended_approach: str
+    sme_situation_summary: Optional[str] = None
+    suggested_conversation_angle: Optional[str] = None
 
 class StrategistOutput(BaseModel):
     pain_point_explanations: List[PainPointExplanation]
@@ -26,7 +29,13 @@ class StrategistOutput(BaseModel):
     sme_report_summary: str
     sales_brief: SalesBrief
 
+
+def _invoke_chain(chain, inputs: Dict[str, Any]):
+    """Support LangChain runnables and lightweight test doubles."""
+    return chain(inputs) if callable(chain) else chain.invoke(inputs)
+
 def create_strategist_chain(llm: BaseChatModel):
+    parser = PydanticOutputParser(pydantic_object=StrategistOutput)
     prompt = ChatPromptTemplate.from_messages([
         ("system", "You are an expert AI Strategist for a Digital Transformation consultancy. "
                    "You are provided with a deterministic diagnosis, maturity scores, calculated financial impacts, "
@@ -35,13 +44,31 @@ def create_strategist_chain(llm: BaseChatModel):
                    "a summary report, and a sales brief. "
                    "CRITICAL: Do NOT invent, change, or recalculate any numbers (especially lead score, impact, hours, or maturity scores). "
                    "Do NOT invent products that are not in the provided matched products list. "
-                   "If government support is matched, ALWAYS use the exact phrase 'Potentially eligible' and never guarantee it."),
+                   "If government support is matched, ALWAYS use the exact phrase 'Potentially eligible' and never guarantee it.\n"
+                   "{format_instructions}"),
         ("human", "Diagnosis: {diagnosis}\n\nScores & Impact: {scores_and_impact}\n\n"
                   "Matched Products: {matched_products}\n\nMatched Gov Support: {gov_support}")
     ])
     
     structured_llm = llm.with_structured_output(StrategistOutput)
-    return prompt | structured_llm
+    
+    def run_chain(inputs):
+        inputs["format_instructions"] = parser.get_format_instructions()
+        try:
+            return (prompt | structured_llm).invoke(inputs)
+        except Exception:
+            # Fallback for models that fail structured output
+            raw_result = (prompt | llm).invoke(inputs)
+            try:
+                return parser.parse(raw_result.content)
+            except Exception:
+                # Regex fallback
+                match = re.search(r'```json\n(.*?)\n```', raw_result.content, re.DOTALL)
+                if match:
+                    return StrategistOutput.model_validate_json(match.group(1))
+                raise
+                
+    return run_chain
 
 def validate_strategist_output(
     output: StrategistOutput, 
@@ -114,36 +141,67 @@ def run_strategist(
         "gov_support": [g.model_dump() for g in gov_support]
     }
     
-    # Attempt 1
-    output = chain.invoke(inputs)
-    
-    if validate_strategist_output(output, matched_products, impact_cost, lead_score):
-        return output
-        
-    # Validation failed, retry with stricter instruction (could use a different prompt, but we just re-invoke)
-    inputs["scores_and_impact"]["WARNING"] = "PREVIOUS OUTPUT FAILED VALIDATION. DO NOT INVENT NUMBERS OR GUARANTEE GRANTS."
+    # Use the LLM whenever it returns a safe, structured answer. If a provider
+    # is unavailable or an answer fails validation, continue with a contextual
+    # narrative rather than returning a broken report or canned sales copy.
     try:
-        output = chain.invoke(inputs)
+        output = _invoke_chain(chain, inputs)
+        if validate_strategist_output(output, matched_products, impact_cost, lead_score):
+            return output
+
+        inputs["scores_and_impact"]["WARNING"] = (
+            "PREVIOUS OUTPUT FAILED VALIDATION. DO NOT INVENT NUMBERS OR GUARANTEE GRANTS."
+        )
+        output = _invoke_chain(chain, inputs)
         if validate_strategist_output(output, matched_products, impact_cost, lead_score):
             return output
     except Exception:
         pass
-        
-    # Safe deterministic fallback
+
+    # Safe assessment-specific fallback. It uses the diagnosis and product
+    # matcher, so different leads cannot receive the same generic sales story.
+    primary_pain = diagnosis[0] if diagnosis else None
+    primary_problem = primary_pain.problem if primary_pain else "the identified operational bottleneck"
+    primary_cause = primary_pain.root_cause if primary_pain else "the current operating process"
+    products = [product.product_id.upper() for product in matched_products]
+    primary_product = products[0] if products else "the recommended Exabytes solution"
+    secondary_product = products[1] if len(products) > 1 else primary_product
+    lowest_dimension = min(maturity_scores, key=maturity_scores.get) if maturity_scores else "digital operations"
+    readable_dimension = lowest_dimension.replace("_", " ")
+    impact_note = f" The current annual opportunity cost is RM {impact_cost:,.0f}." if impact_cost else ""
+
     return StrategistOutput(
         pain_point_explanations=[
             PainPointExplanation(problem=p.problem, root_cause_explanation=p.root_cause, why_it_matters=p.business_impact)
             for p in diagnosis
         ],
         roadmap_narrative=RoadmapNarrative(
-            phase_1="Phase 1: Stabilise operations",
-            phase_2="Phase 2: Introduce automation",
-            phase_3="Phase 3: Scale with AI"
+            phase_1=f"Standardise the workflow behind {primary_problem} and remove friction from {primary_cause}.",
+            phase_2=f"Deploy {primary_product} as the first focused improvement, with a process owner and adoption check-in.",
+            phase_3=f"Use {secondary_product} to build on the improved {readable_dimension} capability as the business grows."
         ),
-        sme_report_summary="Deterministic report generated due to LLM validation failure. See your scores above.",
+        sme_report_summary=(
+            f"The assessment points to {primary_problem}, driven by {primary_cause}. "
+            f"The recommended first move is {primary_product}, with extra attention on {readable_dimension}."
+            f"{impact_note}"
+        ),
         sales_brief=SalesBrief(
-            one_line_hook="Hot lead based on high operational pain.",
-            why_this_lead_is_hot=["High priority", "High opportunity cost"],
-            recommended_approach="Lead with time-saving solutions."
+            one_line_hook=f"{primary_problem}: a focused {primary_product} conversation is timely.",
+            why_this_lead_is_hot=[
+                f"Confirmed operational bottleneck: {primary_problem}",
+                f"Root cause is specific and actionable: {primary_cause}",
+                f"Recommended solution is already matched to the diagnosis: {primary_product}",
+            ],
+            recommended_approach=(
+                f"Start with how {primary_product} reduces the work around {primary_problem}; "
+                "validate the team’s current workflow before discussing rollout."
+            ),
+            sme_situation_summary=(
+                f"The business is experiencing {primary_problem}. The diagnosis links it to {primary_cause}."
+            ),
+            suggested_conversation_angle=(
+                f"Ask the prospect to walk through the bottleneck, then show the smallest {primary_product} "
+                "workflow that removes that friction."
+            ),
         )
     )

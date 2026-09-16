@@ -19,6 +19,7 @@ function App() {
         <Route path="/simulator/:id" element={<Simulator />} />
         <Route path="/roadmap/:id" element={<Roadmap />} />
         <Route path="/report/:id" element={<Report />} />
+        <Route path="/brief-report/:id" element={<Report />} />
         <Route path="/leads" element={<SalesDashboard />} />
         <Route path="/leads/:id" element={<LeadDetail />} />
         <Route path="*" element={<Navigate to="/" replace />} />

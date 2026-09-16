@@ -4,7 +4,8 @@ from backend.ai_chains.analyst import (
     run_analyst_loop, 
     AnalystOutput, 
     InformationGap,
-    create_analyst_chain
+    create_analyst_chain,
+    is_repeated_question,
 )
 
 class MockChain:
@@ -124,6 +125,31 @@ def test_fallback_on_exception(monkeypatch):
     assert final_output.information_gap.exists == False
     assert "Error during analysis" in final_output.hypotheses
     assert len(final_answers) == 0
+
+
+def test_reworded_question_is_not_asked_twice(monkeypatch):
+    """The browser flow supplies prior prompt text, so repeats are terminal."""
+    repeated = AnalystOutput(
+        hypotheses=["Manual order handling"],
+        confidence="medium",
+        information_gap=InformationGap(
+            exists=True,
+            reason="Need hours, but this has already been answered.",
+            follow_up_question="How many hours does your team spend on customer orders each week?",
+        ),
+    )
+    monkeypatch.setattr("backend.ai_chains.analyst.create_analyst_chain", lambda llm: MockChain([repeated]))
+    answers = [{
+        "question_id": "q_1",
+        "question_text": "How many hours per week are spent handling customer orders?",
+        "answer": "20 hours",
+        "asked_reason": "Opening question",
+    }]
+
+    assert is_repeated_question(repeated.information_gap.follow_up_question, answers)
+    output, final_answers = run_analyst_loop(None, {}, answers, ask_user_func=None)
+    assert output.information_gap.exists is False
+    assert len(final_answers) == 1
 
 def test_max_question_cap(monkeypatch):
     # Setup chain that always wants to ask a question

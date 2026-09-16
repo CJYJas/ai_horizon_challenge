@@ -30,7 +30,7 @@ export function LeadDetail() {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div></div>;
   if (!data) return <div className="text-center py-20 text-red-500">Failed to load lead details.</div>;
 
-  const { company_profile, diagnosis_data, impact_simulation, lead_score, lead_score_reasons, sales_brief } = data;
+  const { lead_label, company_profile, diagnosis_data, impact_simulation, lead_score, lead_score_reasons, sales_brief } = data;
   const { top_pain_points, maturity_scores, recommendations } = diagnosis_data;
   
   const mainProblem = top_pain_points[0] || {};
@@ -54,6 +54,10 @@ export function LeadDetail() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Pipeline
           </Button>
           <div className="flex items-center gap-4">
+            <Button variant="secondary" onClick={() => navigate(`/report/${id}`)}>
+              View Detailed Report
+            </Button>
+            <div className="w-px h-6 bg-gray-200"></div>
             <span className="text-sm font-medium text-gray-500">Lead Score</span>
             <div className={`px-4 py-1.5 rounded-full font-bold flex items-center gap-2 ${lead_score >= 80 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'}`}>
               {Math.round(lead_score)} / 100
@@ -74,8 +78,13 @@ export function LeadDetail() {
                 <Building2 className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{company_profile.company_name || 'ABC Enterprise'}</h2>
+                <h2 className="text-xl font-bold text-gray-900">{lead_label || company_profile.company_name}</h2>
                 <p className="text-gray-500 text-sm">{company_profile.industry} • {company_profile.employee_count} employees</p>
+                {(company_profile.email || company_profile.phone) && (
+                  <p className="text-gray-400 text-xs mt-1">
+                    {company_profile.email} {company_profile.email && company_profile.phone && '|'} {company_profile.phone}
+                  </p>
+                )}
               </div>
             </div>
             
@@ -149,14 +158,18 @@ export function LeadDetail() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">SME Situation</h3>
-                  <p className="text-gray-700 leading-relaxed">{sales_brief.sme_situation_summary}</p>
+                  <p className="text-gray-700 leading-relaxed">
+                    {sales_brief.sme_situation_summary || sales_brief.one_line_hook || 'Situation summary will appear after diagnosis is complete.'}
+                  </p>
                 </div>
                 
                 <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
                   <h3 className="text-sm font-bold text-blue-900 uppercase tracking-wider mb-2 flex items-center gap-2">
                     <Lightbulb className="w-4 h-4" /> Suggested Conversation Angle
                   </h3>
-                  <p className="text-blue-800 leading-relaxed font-medium">"{sales_brief.suggested_conversation_angle}"</p>
+                  <p className="text-blue-800 leading-relaxed font-medium">
+                    "{sales_brief.suggested_conversation_angle || sales_brief.recommended_approach || 'Focus on the top operational pain point and a quick-win product outcome.'}"
+                  </p>
                 </div>
               </div>
             </Card>
@@ -188,7 +201,7 @@ export function LeadDetail() {
                 <AlertTriangle className="w-5 h-5 text-amber-500" /> Why This Lead Matters
               </h2>
               <ul className="space-y-4">
-                {lead_score_reasons.map((reason, idx) => (
+                {(lead_score_reasons.length ? lead_score_reasons : (sales_brief.why_this_lead_is_hot || [])).map((reason, idx) => (
                   <li key={idx} className="flex items-start gap-3 text-sm">
                     <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5 text-amber-500 font-bold text-xs">
                       {idx + 1}

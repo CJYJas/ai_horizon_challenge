@@ -160,5 +160,5 @@ def test_strategist_validation_failure_fallback(monkeypatch):
     
     # The MockBadStrategistChain mentions RM 99,999 and "definitely eligible", so validation should FAIL
     # It should fall back to the safe deterministic output
-    assert "Deterministic report generated" in output.sme_report_summary
-    assert output.roadmap_narrative.phase_1 == "Phase 1: Stabilise operations"
+    assert "Test problem" in output.sme_report_summary
+    assert "Test problem" in output.roadmap_narrative.phase_1

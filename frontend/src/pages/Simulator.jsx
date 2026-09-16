@@ -62,8 +62,8 @@ export function Simulator() {
             </h1>
             <p className="text-gray-500 mt-2">Adjust the assumptions below to dynamically calculate the potential ROI of digital transformation.</p>
           </div>
-          <Button onClick={() => navigate(`/roadmap/${id}`)}>
-            View Roadmap <ArrowRight className="ml-2 w-4 h-4" />
+          <Button size="lg" className="px-8" onClick={() => navigate(`/report/${id}`)}>
+            Generate Detailed Report <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
 

@@ -7,7 +7,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { ProgressBar } from '../components/ui/ProgressBar';
 
-export function Report() {
+export function BriefReport() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -107,8 +107,8 @@ export function Report() {
         
         {/* Print Controls */}
         <div className="flex justify-between items-center mb-8 no-print">
-          <Button variant="ghost" onClick={() => navigate('/leads')}>
-            Back to Dashboard
+          <Button variant="ghost" onClick={() => navigate('/')}>
+            Back Home
           </Button>
           <Button variant="primary" onClick={handlePrint}>
             <Download className="w-4 h-4 mr-2" />
@@ -192,40 +192,11 @@ export function Report() {
                       <h3 className="text-xl font-bold text-gray-900">{exp.problem}</h3>
                       <Badge variant="red">High Priority</Badge>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-4 mt-6">
-                      <div className="bg-white p-4 rounded border border-gray-200">
-                        <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Root Cause</p>
-                        <p className="text-gray-800">{exp.root_cause_explanation}</p>
-                      </div>
-                      <div className="bg-red-50 p-4 rounded border border-red-100">
-                        <p className="text-sm font-semibold text-red-500 uppercase tracking-wider mb-1">Business Impact</p>
-                        <p className="text-red-900 font-medium">{exp.why_it_matters}</p>
-                      </div>
-                    </div>
+                    <p className="text-gray-700 mt-2">{exp.why_it_matters}</p>
                   </div>
                 ))}
               </div>
             </section>
-
-            {/* 8. Impact Simulation */}
-            {impact_simulation && (
-              <section className="page-break-inside-avoid">
-                <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                  <TrendingUp className="w-6 h-6 text-primary-600" /> ROI & Impact Simulation
-                </h2>
-                <p className="text-sm text-gray-500 italic mb-4">* Estimates based on user assumptions. Not guaranteed savings.</p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-red-50 p-6 rounded-xl border border-red-100">
-                    <p className="text-sm text-red-800 font-medium mb-1">Estimated Annual Opportunity Cost</p>
-                    <p className="text-3xl font-bold text-red-900">{formatCurrency(impact_simulation.annual_opportunity_cost)}</p>
-                  </div>
-                  <div className="bg-green-50 p-6 rounded-xl border border-green-100">
-                    <p className="text-sm text-green-800 font-medium mb-1">Target Recovered Value / Year</p>
-                    <p className="text-3xl font-bold text-green-900">{formatCurrency(impact_simulation.recovered_value_per_year)}</p>
-                  </div>
-                </div>
-              </section>
-            )}
 
             {/* 9 & 12. Transformation Roadmap & Priority Areas */}
             <section className="page-break-before">

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bot, BarChart3, Target, ArrowRight, Zap } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -5,6 +6,30 @@ import { Card } from '../components/ui/Card';
 
 export function Landing() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    company_name: '',
+    industry: '',
+    employee_count: '',
+    email: '',
+    phone: ''
+  });
+
+  const handleStartAssessment = (e) => {
+    e.preventDefault();
+    navigate('/assessment', {
+      state: {
+        company_profile: {
+          company_name: formData.company_name,
+          industry: formData.industry,
+          employee_count: parseInt(formData.employee_count, 10),
+          email: formData.email,
+          phone: formData.phone,
+          current_digital_tools: [], // to be collected by AI
+          main_operational_problems: [] // to be collected by AI
+        }
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -32,15 +57,79 @@ export function Landing() {
               Our AI Consultant analyses your current operations, identifies operational bottlenecks, and recommends the exact digital tools to scale your SME efficiently.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                onClick={() => navigate('/assessment')}
-                className="text-lg px-8 py-4 bg-primary-600 hover:bg-primary-700 shadow-lg shadow-primary-600/20"
-              >
-                Start Assessment
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </div>
+            <form onSubmit={handleStartAssessment} className="space-y-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.company_name}
+                    onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                    placeholder="Enter company name"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.industry}
+                    onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                    placeholder="e.g. Retail, F&B, Logistics"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Employee Count</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={formData.employee_count}
+                    onChange={(e) => setFormData({ ...formData, employee_count: e.target.value })}
+                    placeholder="e.g. 25"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="name@company.com"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="Phone number"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                <Button 
+                  type="submit"
+                  className="text-lg px-8 py-4 bg-primary-600 hover:bg-primary-700 shadow-lg shadow-primary-600/20"
+                >
+                  Start Assessment
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
 

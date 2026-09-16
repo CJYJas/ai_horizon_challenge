@@ -121,6 +121,49 @@ def classify_impact(annual_opportunity_cost: float, rules: Dict[str, Any]) -> st
                 
     return "low" # Fallback
 
+def derive_urgency_signals(profile: Dict[str, Any], answers: List[Dict[str, Any]]) -> List[str]:
+    """
+    Map free-text assessment evidence to configured urgency signal tokens.
+    """
+    parts = [
+        str(profile.get("industry", "")),
+        " ".join(profile.get("main_operational_problems", [])),
+    ]
+    for entry in answers or []:
+        parts.append(str(entry.get("answer", "")))
+
+    text = " ".join(parts).lower()
+    signals: List[str] = []
+
+    keyword_to_signal = {
+        "losing customer": "currently_losing_customers",
+        "customer churn": "currently_losing_customers",
+        "revenue": "revenue_impact",
+        "sales drop": "revenue_impact",
+        "manual": "regular_manual_work",
+        "hours a week": "regular_manual_work",
+        "hour per week": "regular_manual_work",
+        "whatsapp": "customer_follow_up_delays",
+        "spreadsheet": "recurring_operational_problem",
+        "excel": "recurring_operational_problem",
+        "delay": "customer_follow_up_delays",
+        "follow-up": "customer_follow_up_delays",
+        "productivity": "productivity_loss",
+        "security": "critical_security_issue",
+        "downtime": "frequent_business_failure_or_downtime",
+        "urgent": "major_operational_disruption",
+        "cannot scale": "major_operational_disruption",
+    }
+    for keyword, signal in keyword_to_signal.items():
+        if keyword in text:
+            signals.append(signal)
+
+    if not signals:
+        signals.append("recurring_operational_problem")
+
+    return list(dict.fromkeys(signals))
+
+
 def classify_urgency(signals: List[str], rules: Dict[str, Any]) -> str:
     """
     5. Urgency classification

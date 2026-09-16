@@ -19,7 +19,7 @@ export function Assessment() {
   });
 
   // Chat state
-  const [question, setQuestion] = useState("Let's understand how your business operates. Can you describe how you currently manage your daily operations?");
+  const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
@@ -36,6 +36,7 @@ export function Assessment() {
       };
       const res = await api.createAssessment(formattedProfile);
       setAssessmentId(res.assessment_id);
+      setQuestion(res.initial_question);
       setStep('chat');
     } catch (err) {
       console.error(err);
@@ -56,7 +57,7 @@ export function Assessment() {
     setIsSubmitting(true);
 
     try {
-      const res = await api.submitAnswer(assessmentId, currentAnswer);
+      const res = await api.submitAnswer(assessmentId, currentAnswer, currentQuestion);
       
       if (res.is_complete) {
         navigate(`/diagnosis/${assessmentId}`);
@@ -99,7 +100,8 @@ export function Assessment() {
 
         {step === 'profile' && (
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Profile</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Company Profile</h3>
+            <p className="text-sm text-gray-500 mb-4">Business context only — we do not collect personal names, email, or phone numbers.</p>
             <form onSubmit={handleStart} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>

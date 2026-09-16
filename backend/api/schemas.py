@@ -15,9 +15,13 @@ class CreateAssessmentRequest(BaseModel):
 class CreateAssessmentResponse(BaseModel):
     assessment_id: str
     status: str
+    initial_question: str
 
 class AnswerRequest(BaseModel):
     answer: Union[str, int, bool]
+    # The client sends back the prompt it displayed so the audit trail and the
+    # LLM both know exactly what has already been asked.
+    question_text: Optional[str] = None
 
 class AnswerResponse(BaseModel):
     is_complete: bool
@@ -61,9 +65,12 @@ class LeadCardResponse(BaseModel):
     top_pain_point_problem: Optional[str] = None
     recommended_transformation: Optional[str] = None
     created_at: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
 
 class LeadDetailResponse(BaseModel):
     assessment_id: str
+    lead_label: str
     company_profile: CompanyProfile
     lead_score: float
     lead_score_reasons: List[str]
