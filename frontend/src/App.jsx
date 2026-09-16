@@ -7,6 +7,7 @@ import { Roadmap } from './pages/Roadmap';
 import { Report } from './pages/Report';
 import { SalesDashboard } from './pages/SalesDashboard';
 import { LeadDetail } from './pages/LeadDetail';
+import { SalesReport } from './pages/SalesReport';
 import './App.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/brief-report/:id" element={<Report />} />
         <Route path="/leads" element={<SalesDashboard />} />
         <Route path="/leads/:id" element={<LeadDetail />} />
+        <Route path="/leads/:id/sales-report" element={<SalesReport />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

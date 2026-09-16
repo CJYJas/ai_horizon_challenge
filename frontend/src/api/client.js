@@ -15,8 +15,8 @@ export const api = {
     return res.data;
   },
   
-  submitAnswer: async (id, answer, questionText) => {
-    const res = await client.post(`/assessments/${id}/answers`, { answer, question_text: questionText });
+  submitAnswer: async (id, answer, questionText, questionTopic) => {
+    const res = await client.post(`/assessments/${id}/answers`, { answer, question_text: questionText, question_topic: questionTopic });
     return res.data;
   },
   
@@ -42,6 +42,10 @@ export const api = {
   
   getLeadDetail: async (id) => {
     const res = await client.get(`/leads/${id}`);
+    return res.data;
+  },
+  getSalesReport: async (id) => {
+    const res = await client.get(`/leads/${id}/sales-report`);
     return res.data;
   }
 };

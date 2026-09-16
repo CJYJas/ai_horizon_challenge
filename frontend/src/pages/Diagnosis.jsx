@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { Activity, AlertTriangle, ArrowRight, Target, Shield, Users, Zap, Briefcase, ChevronDown, Package, Search, BarChart3, ArrowDown, TrendingUp } from 'lucide-react';
 import { api } from '../api/client';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { MaturityChart } from '../components/MaturityChart';
 
 export function Diagnosis() {
   const { id } = useParams();
@@ -34,14 +34,6 @@ export function Diagnosis() {
   if (!data) return null;
 
   const { top_pain_points, maturity_scores, recommendations } = data;
-
-  const radarData = [
-    { subject: 'Digital Presence', A: maturity_scores.digital_presence, fullMark: 5 },
-    { subject: 'Productivity', A: maturity_scores.productivity, fullMark: 5 },
-    { subject: 'Customer Mgt', A: maturity_scores.customer_management, fullMark: 5 },
-    { subject: 'Data & Security', A: maturity_scores.data_security, fullMark: 5 },
-    { subject: 'AI Readiness', A: maturity_scores.ai_readiness, fullMark: 5 },
-  ];
 
   // Find biggest gap
   let biggestGap = { name: '', score: 5 };
@@ -197,16 +189,7 @@ export function Diagnosis() {
             <Card>
               <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-6 text-center">Digital Maturity Index</h3>
               
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
-                    <PolarGrid stroke="#e5e7eb" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#4B5563', fontSize: 10, fontWeight: 500 }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
-                    <Radar name="Maturity" dataKey="A" stroke="#005B9F" strokeWidth={2} fill="#005B9F" fillOpacity={0.2} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
+              <MaturityChart scores={maturity_scores} />
             </Card>
             
           </div>

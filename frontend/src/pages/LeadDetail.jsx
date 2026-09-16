@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { ArrowLeft, BrainCircuit, Target, Flame, TrendingUp, AlertTriangle, Lightbulb, Link as LinkIcon, Building2 } from 'lucide-react';
 import { api } from '../api/client';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
+import { MaturityChart } from '../components/MaturityChart';
 
 export function LeadDetail() {
   const { id } = useParams();
@@ -36,12 +36,6 @@ export function LeadDetail() {
   const mainProblem = top_pain_points[0] || {};
   const mainSolution = recommendations[0] || {};
 
-  const radarData = Object.entries(maturity_scores).map(([key, val]) => ({
-    subject: key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    A: val,
-    fullMark: 5
-  }));
-
   const formatCurrency = (val) => new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' }).format(val);
 
   return (
@@ -54,8 +48,11 @@ export function LeadDetail() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Pipeline
           </Button>
           <div className="flex items-center gap-4">
-            <Button variant="secondary" onClick={() => navigate(`/report/${id}`)}>
-              View Detailed Report
+            <Button variant="outline" className="border-gray-200" onClick={() => navigate(`/report/${id}?from=sales`)}>
+              View Client Report
+            </Button>
+            <Button variant="secondary" onClick={() => navigate(`/leads/${id}/sales-report`)}>
+              Open Sales Playbook
             </Button>
             <div className="w-px h-6 bg-gray-200"></div>
             <span className="text-sm font-medium text-gray-500">Lead Score</span>
@@ -99,16 +96,7 @@ export function LeadDetail() {
               </div>
               <div className="pt-4 border-t border-gray-100">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Maturity Radar</p>
-                <div className="h-48 w-full -ml-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="60%" data={radarData}>
-                      <PolarGrid />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#6B7280', fontSize: 9 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
-                      <Radar name="Maturity" dataKey="A" stroke="#005B9F" fill="#005B9F" fillOpacity={0.3} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
+                <MaturityChart scores={maturity_scores} compact />
               </div>
             </div>
           </Card>

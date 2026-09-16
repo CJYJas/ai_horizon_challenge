@@ -45,7 +45,7 @@ def test_abc_enterprise_scenario(monkeypatch):
             information_gap=InformationGap(
                 exists=True,
                 reason="Need to determine if process fragmentation leads to lost revenue.",
-                follow_up_question="Do you lose enquiries/orders because multiple staff members handle WhatsApp separately?"
+                follow_up_question="Do you lose enquiries/orders because multiple team members handle WhatsApp separately?"
             )
         ),
         # Loop 3
@@ -101,7 +101,7 @@ def test_abc_enterprise_scenario(monkeypatch):
     assert final_answers[0]["answer"] == "20 hrs/week"
     assert final_answers[0]["asked_reason"] == "Need to quantify manual effort."
     
-    assert final_answers[1]["question_text"] == "Do you lose enquiries/orders because multiple staff members handle WhatsApp separately?"
+    assert final_answers[1]["question_text"] == "Do you lose enquiries/orders because multiple team members handle WhatsApp separately?"
     assert final_answers[1]["answer"] == "Yes"
     
     # The final output should have no gap
@@ -148,7 +148,8 @@ def test_reworded_question_is_not_asked_twice(monkeypatch):
 
     assert is_repeated_question(repeated.information_gap.follow_up_question, answers)
     output, final_answers = run_analyst_loop(None, {}, answers, ask_user_func=None)
-    assert output.information_gap.exists is False
+    assert output.information_gap.exists is True
+    assert output.information_gap.follow_up_question == "Which tools, apps, or manual steps do you currently use to run this workflow?"
     assert len(final_answers) == 1
 
 def test_max_question_cap(monkeypatch):

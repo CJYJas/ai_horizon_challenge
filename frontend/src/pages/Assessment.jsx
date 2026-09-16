@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Bot, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -7,36 +7,30 @@ import { api } from '../api/client';
 
 export function Assessment() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState('profile'); // 'profile', 'chat', 'loading'
   const [assessmentId, setAssessmentId] = useState(null);
-  
-  // Profile state
-  const [profile, setProfile] = useState({
-    industry: 'Retail',
-    employee_count: 8,
-    current_digital_tools: 'whatsapp, spreadsheet',
-    main_operational_problems: 'Hard to keep track of customer orders'
-  });
+  const [profile] = useState(() => location.state?.company_profile || null);
 
   // Chat state
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
+  const [questionTopic, setQuestionTopic] = useState('tools_workflow');
+
+  useEffect(() => {
+    if (!profile) navigate('/', { replace: true });
+  }, [navigate, profile]);
 
   const handleStart = async (e) => {
     e.preventDefault();
     setStep('loading');
     try {
-      const formattedProfile = {
-        ...profile,
-        employee_count: parseInt(profile.employee_count, 10),
-        current_digital_tools: profile.current_digital_tools.split(',').map(s => s.trim()),
-        main_operational_problems: [profile.main_operational_problems]
-      };
-      const res = await api.createAssessment(formattedProfile);
+      const res = await api.createAssessment(profile);
       setAssessmentId(res.assessment_id);
       setQuestion(res.initial_question);
+      setQuestionTopic(res.initial_question_topic);
       setStep('chat');
     } catch (err) {
       console.error(err);
@@ -57,12 +51,13 @@ export function Assessment() {
     setIsSubmitting(true);
 
     try {
-      const res = await api.submitAnswer(assessmentId, currentAnswer, currentQuestion);
+      const res = await api.submitAnswer(assessmentId, currentAnswer, currentQuestion, questionTopic);
       
       if (res.is_complete) {
         navigate(`/diagnosis/${assessmentId}`);
       } else {
         setQuestion(res.follow_up_question);
+        setQuestionTopic(res.question_topic || 'adaptive');
       }
     } catch (err) {
       console.error(err);
@@ -83,6 +78,8 @@ export function Assessment() {
     );
   }
 
+  if (!profile) return null;
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
@@ -100,48 +97,15 @@ export function Assessment() {
 
         {step === 'profile' && (
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Company Profile</h3>
-            <p className="text-sm text-gray-500 mb-4">Business context only — we do not collect personal names, email, or phone numbers.</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Company profile received</h3>
+            <p className="text-sm text-gray-500 mb-6">We will use these details as context and only ask about your operations.</p>
             <form onSubmit={handleStart} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
-                <input 
-                  type="text" 
-                  value={profile.industry}
-                  onChange={e => setProfile({...profile, industry: e.target.value})}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Employee Count</label>
-                <input 
-                  type="number" 
-                  value={profile.employee_count}
-                  onChange={e => setProfile({...profile, employee_count: e.target.value})}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Current Digital Tools (comma separated)</label>
-                <input 
-                  type="text" 
-                  value={profile.current_digital_tools}
-                  onChange={e => setProfile({...profile, current_digital_tools: e.target.value})}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Main Operational Problem</label>
-                <input 
-                  type="text" 
-                  value={profile.main_operational_problems}
-                  onChange={e => setProfile({...profile, main_operational_problems: e.target.value})}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                />
-              </div>
+              <dl className="grid sm:grid-cols-2 gap-4 rounded-xl bg-gray-50 p-5 text-sm">
+                <div><dt className="text-gray-500">Company</dt><dd className="font-semibold text-gray-900">{profile.company_name}</dd></div>
+                <div><dt className="text-gray-500">Industry</dt><dd className="font-semibold text-gray-900">{profile.industry}</dd></div>
+                <div><dt className="text-gray-500">Employees</dt><dd className="font-semibold text-gray-900">{profile.employee_count}</dd></div>
+                <div><dt className="text-gray-500">Contact</dt><dd className="font-semibold text-gray-900">{profile.email} · {profile.phone}</dd></div>
+              </dl>
               <div className="pt-4 flex justify-end">
                 <Button type="submit">
                   Begin Analysis

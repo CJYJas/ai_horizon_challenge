@@ -16,17 +16,20 @@ class CreateAssessmentResponse(BaseModel):
     assessment_id: str
     status: str
     initial_question: str
+    initial_question_topic: str
 
 class AnswerRequest(BaseModel):
     answer: Union[str, int, bool]
     # The client sends back the prompt it displayed so the audit trail and the
     # LLM both know exactly what has already been asked.
     question_text: Optional[str] = None
+    question_topic: Optional[str] = None
 
 class AnswerResponse(BaseModel):
     is_complete: bool
     follow_up_question: Optional[str] = None
     reason: Optional[str] = None
+    question_topic: Optional[str] = None
 
 class DiagnosisResponse(BaseModel):
     top_pain_points: List[TopPainPoint]
@@ -53,6 +56,10 @@ class ReportResponse(BaseModel):
     company_profile: CompanyProfile
     diagnosis_data: DiagnosisResponse
     impact_simulation: Optional[ImpactSimulationResponse] = None
+
+class SalesReportResponse(ReportResponse):
+    assessment_id: str
+    lead_label: str
 
 class LeadCardResponse(BaseModel):
     assessment_id: str

@@ -41,7 +41,7 @@ export function Roadmap() {
             </h1>
             <p className="text-gray-500 mt-2">Your step-by-step plan to resolve operational bottlenecks.</p>
           </div>
-          <Button onClick={() => navigate(`/report/${id}`)}>
+          <Button onClick={() => navigate(`/report/${id}?from=user&return=roadmap`)}>
             Generate Detailed Report <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </div>

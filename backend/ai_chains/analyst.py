@@ -8,6 +8,19 @@ import json
 import re
 
 
+AUTHORITATIVE_PROFILE_TERMS = {
+    "industry", "business sector", "sector", "employee", "employees", "staff", "worker", "workers",
+    "people", "headcount", "size", "large",
+    "company name", "business name",
+    "email", "phone", "telephone", "contact number"
+}
+INTERVIEW_AGENDA = [
+    ("tools_workflow", "Which tools, apps, or manual steps do you currently use to run this workflow?"),
+    ("workload", "About how often does this workflow happen, and how much team time does it take in a typical week?"),
+    ("outcome", "What would you most like to improve first: speed, fewer errors, customer response, or visibility?"),
+]
+
+
 def _question_terms(question: str) -> set[str]:
     """Normalise a question enough to catch reworded repeats."""
     stop_words = {"a", "an", "and", "are", "can", "could", "do", "does", "for", "how", "i", "if", "in", "is", "it", "many", "of", "or", "the", "to", "we", "what", "when", "which", "with", "would", "you", "your"}
@@ -26,15 +39,56 @@ def is_repeated_question(question: str, answers: List[Dict[str, Any]]) -> bool:
         previous = _question_terms(str(item.get("question_text", "")))
         if not previous:
             continue
-        overlap = len(candidate & previous) / min(len(candidate), len(previous))
-        if overlap >= 0.6:
+        # Use intersection size relative to minimum length to detect rewording
+        overlap = len(candidate & previous) / max(min(len(candidate), len(previous)), 1)
+        if overlap >= 0.5:
             return True
     return False
+
+
+def classify_question_topic(question: str) -> str:
+    terms = _question_terms(question)
+    if terms & {"tool", "tools", "app", "apps", "system", "systems", "workflow", "process", "manual"}:
+        return "tools_workflow"
+    if terms & {"hour", "hours", "time", "often", "week", "volume"}:
+        return "workload"
+    if terms & {"improve", "goal", "outcome", "success", "priority", "want"}:
+        return "outcome"
+    return "adaptive"
+
+
+def is_profile_question(question: str) -> bool:
+    normalized = (question or "").lower()
+    return any(term in normalized for term in AUTHORITATIVE_PROFILE_TERMS)
+
+
+def next_safe_question(question: str, answers: List[Dict[str, Any]]) -> tuple[Optional[str], Optional[str]]:
+    """Keep the interview on operational gaps and never repeat a topic."""
+    asked_topics = {item.get("question_topic") or classify_question_topic(item.get("question_text", "")) for item in answers}
+    candidate_topic = classify_question_topic(question)
+    if question and not is_profile_question(question) and not is_repeated_question(question, answers) and candidate_topic not in asked_topics:
+        return question, candidate_topic
+    for topic, fallback in INTERVIEW_AGENDA:
+        if topic not in asked_topics:
+            return fallback, topic
+    return None, None
 
 
 def _invoke_chain(chain, inputs: Dict[str, Any]):
     """Support LangChain runnables and lightweight test doubles."""
     return chain(inputs) if callable(chain) else chain.invoke(inputs)
+
+
+def _answer_texts(answers: List[Dict[str, Any]]) -> List[str]:
+    return [str(item.get("answer", "")).strip() for item in answers if str(item.get("answer", "")).strip()]
+
+
+def _fallback_hypothesis(company_profile: Dict[str, Any], answers: List[Dict[str, Any]]) -> str:
+    stated_problem = (company_profile.get("main_operational_problems") or [None])[0]
+    if stated_problem:
+        return str(stated_problem)
+    response = next(iter(_answer_texts(answers)), "")
+    return f"Operational bottleneck described as: {response[:180]}" if response else "Error during analysis"
 
 class InformationGap(BaseModel):
     exists: bool = Field(description="Whether a genuine information gap exists that changes the diagnosis")
@@ -54,7 +108,8 @@ def create_analyst_chain(llm: BaseChatModel):
                    "Based on the company profile and answers provided, form hypotheses about their operational bottlenecks. "
                    "If you need more information to make a confident diagnosis, identify the information gap and ask ONE targeted follow-up question. "
                    "Do not ask a checklist of questions. Never repeat or substantially rephrase a question in the Answers so far; "
-                   "if it has already been answered, use it rather than asking it again.\n{format_instructions}"),
+                   "if it has already been answered, use it rather than asking it again. Company name, industry, employee count, "
+                   "email and phone are authoritative profile fields: never ask for them. Ask only about tools/workflow, workload, or desired outcome.\n{format_instructions}"),
         ("human", "Company Profile: {company_profile}\n\nAnswers so far: {answers}")
     ])
     
@@ -103,7 +158,7 @@ def run_analyst_loop(
         except Exception as e:
             # Fallback on schema validation failure or LLM error
             output = AnalystOutput(
-                hypotheses=["Error during analysis"],
+                hypotheses=[_fallback_hypothesis(company_profile, answers)],
                 confidence="low",
                 information_gap=InformationGap(exists=False, reason=str(e), follow_up_question=None)
             )
@@ -112,15 +167,11 @@ def run_analyst_loop(
             # Stop the loop
             return output, answers
 
-        if is_repeated_question(output.information_gap.follow_up_question, answers):
-            # A repeated question cannot add information. Finish this turn with
-            # the evidence already collected instead of trapping the user.
-            output.information_gap = InformationGap(
-                exists=False,
-                reason="The proposed follow-up overlaps with information already provided.",
-                follow_up_question=None,
-            )
+        safe_question, safe_topic = next_safe_question(output.information_gap.follow_up_question, answers)
+        if not safe_question:
+            output.information_gap = InformationGap(exists=False, reason="The interview agenda is complete.", follow_up_question=None)
             return output, answers
+        output.information_gap.follow_up_question = safe_question
             
         # Ask follow up
         if ask_user_func:
@@ -129,6 +180,7 @@ def run_analyst_loop(
             answers.append({
                 "question_id": f"q_{len(answers)+1}",
                 "question_text": question,
+                "question_topic": safe_topic,
                 "answer": user_response,
                 "asked_reason": output.information_gap.reason
             })
@@ -148,7 +200,7 @@ def run_analyst_loop(
         output.information_gap.exists = False
     except Exception as e:
         output = AnalystOutput(
-            hypotheses=["Error during final analysis"],
+            hypotheses=[_fallback_hypothesis(company_profile, answers)],
             confidence="low",
             information_gap=InformationGap(exists=False, reason=str(e), follow_up_question=None)
         )
@@ -187,11 +239,12 @@ def run_diagnosis_chain(llm: BaseChatModel, company_profile: Dict[str, Any], ans
             raw = (prompt | llm).invoke(inputs)
             res = parser.parse(raw.content)
             return res.pain_points
-        except Exception as e:
-            # Fallback
+        except Exception:
+            evidence = _answer_texts(answers) or [str(item) for item in (company_profile.get("main_operational_problems") or [])]
+            first_evidence = evidence[0] if evidence else "the current workflow"
             return [DiagnosticPoint(
-                problem=hypotheses[0] if hypotheses else "Operational inefficiency",
-                root_cause="Fragmented digital operations",
-                evidence=["User assessment responses"],
-                business_impact="Revenue and productivity leak"
+                problem=hypotheses[0] if hypotheses else f"Operational bottleneck in {company_profile.get('industry', 'the business')}",
+                root_cause=f"Assessment evidence points to a workflow gap: {first_evidence[:220]}",
+                evidence=evidence[:3] or ["No operational detail was supplied."],
+                business_impact="The described manual workflow can create delays, errors, and reduced visibility."
             )]

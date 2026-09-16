@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { FileText, Loader2, ArrowRight, Download, CheckCircle, BrainCircuit, Activity, AlertTriangle, TrendingUp, DollarSign, Package, Building2, Map } from 'lucide-react';
 import { api } from '../api/client';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { ProgressBar } from '../components/ui/ProgressBar';
+import { MaturityChart } from '../components/MaturityChart';
 
 export function Report() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,6 +46,9 @@ export function Report() {
   };
 
   const formatCurrency = (val) => new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' }).format(val);
+  const returnStep = searchParams.get('return');
+  const fromSales = searchParams.get('from') === 'sales';
+  const returnPath = fromSales ? '/leads' : returnStep === 'simulator' ? `/simulator/${id}` : returnStep === 'roadmap' ? `/roadmap/${id}` : '/';
 
   if (loading) {
     return (
@@ -100,6 +104,7 @@ export function Report() {
           `phase_${idx + 1}`,
           `${rec.product_id.toUpperCase()}: ${rec.expected_outcome}`,
         ]);
+  const rationales = report.product_rationales || [];
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -107,8 +112,8 @@ export function Report() {
         
         {/* Print Controls */}
         <div className="flex justify-between items-center mb-8 no-print">
-          <Button variant="ghost" onClick={() => navigate('/leads')}>
-            Back to Dashboard
+          <Button variant="ghost" onClick={() => navigate(returnPath)}>
+            {fromSales ? 'Back to dashboard' : 'Back to your journey'}
           </Button>
           <Button variant="primary" onClick={handlePrint}>
             <Download className="w-4 h-4 mr-2" />
@@ -167,16 +172,8 @@ export function Report() {
               <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
                 <Activity className="w-6 h-6 text-primary-600" /> Digital Maturity
               </h2>
-              <div className="grid sm:grid-cols-2 gap-x-12 gap-y-6">
-                {Object.entries(maturity_scores).map(([key, val]) => (
-                  <div key={key}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-gray-700 capitalize">{key.replace('_', ' ')}</span>
-                      <span className="font-semibold text-primary-700">{val}/5</span>
-                    </div>
-                    <ProgressBar value={val} max={5} />
-                  </div>
-                ))}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <MaturityChart scores={maturity_scores} />
               </div>
             </section>
 
@@ -260,9 +257,15 @@ export function Report() {
               <div className="grid md:grid-cols-2 gap-4">
                 {recommendations.map((rec, idx) => (
                   <div key={idx} className="border border-gray-200 rounded-xl p-6 bg-white">
+                    {(() => {
+                      const rationale = rationales.find((item) => item.product_id === rec.product_id);
+                      return <>
                     <h3 className="text-lg font-bold text-gray-900 mb-2 uppercase">{rec.product_id}</h3>
                     <p className="text-sm font-medium text-primary-600 mb-3">{rec.expected_outcome}</p>
                     <p className="text-sm text-gray-600 italic">"{rec.reason}"</p>
+                    {rationale && <div className="mt-4 space-y-3 text-sm"><div><p className="font-semibold text-gray-800">Why this fits your business</p><p className="text-gray-700 mt-1">{rationale.why_suitable}</p></div><div><p className="font-semibold text-gray-800">How to begin</p><p className="text-gray-700 mt-1">{rationale.implementation_suggestion}</p></div></div>}
+                      </>;
+                    })()}
                   </div>
                 ))}
               </div>

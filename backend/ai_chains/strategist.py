@@ -23,11 +23,32 @@ class SalesBrief(BaseModel):
     sme_situation_summary: Optional[str] = None
     suggested_conversation_angle: Optional[str] = None
 
+
+class ProductRationale(BaseModel):
+    product_id: str
+    observed_evidence: List[str] = Field(default_factory=list)
+    why_suitable: str = ""
+    relevant_capabilities: List[str] = Field(default_factory=list)
+    implementation_suggestion: str = ""
+    prerequisites: List[str] = Field(default_factory=list)
+    expected_outcome: str = ""
+
+
+class SalesPlaybook(BaseModel):
+    situation_summary: str = ""
+    discovery_questions: List[str] = Field(default_factory=list)
+    talk_track: List[str] = Field(default_factory=list)
+    likely_objections: List[str] = Field(default_factory=list)
+    objection_responses: List[str] = Field(default_factory=list)
+    next_actions: List[str] = Field(default_factory=list)
+
 class StrategistOutput(BaseModel):
     pain_point_explanations: List[PainPointExplanation]
     roadmap_narrative: RoadmapNarrative
     sme_report_summary: str
     sales_brief: SalesBrief
+    product_rationales: List[ProductRationale] = Field(default_factory=list)
+    sales_playbook: SalesPlaybook = Field(default_factory=SalesPlaybook)
 
 
 def _invoke_chain(chain, inputs: Dict[str, Any]):
@@ -44,10 +65,13 @@ def create_strategist_chain(llm: BaseChatModel):
                    "a summary report, and a sales brief. "
                    "CRITICAL: Do NOT invent, change, or recalculate any numbers (especially lead score, impact, hours, or maturity scores). "
                    "Do NOT invent products that are not in the provided matched products list. "
+                   "CRITICAL REQUIREMENT: For EVERY SINGLE matched product in the input, you MUST include a corresponding detailed 'product_rationales' entry. "
+                   "Provide extremely strong, detailed, and persuasive reasoning for why the product is suitable based on the exact assessment evidence. Include clear 'how to start' steps. "
+                   "Also produce a practical and detailed sales playbook: discovery questions, talk track, likely objections with strong responses, and next actions. "
                    "If government support is matched, ALWAYS use the exact phrase 'Potentially eligible' and never guarantee it.\n"
                    "{format_instructions}"),
         ("human", "Diagnosis: {diagnosis}\n\nScores & Impact: {scores_and_impact}\n\n"
-                  "Matched Products: {matched_products}\n\nMatched Gov Support: {gov_support}")
+                  "Matched Products: {matched_products}\n\nVerified Product Context: {product_context}\n\nMatched Gov Support: {gov_support}")
     ])
     
     structured_llm = llm.with_structured_output(StrategistOutput)
@@ -80,6 +104,12 @@ def validate_strategist_output(
     Validates that the LLM did not hallucinate products or contradictory numbers.
     """
     valid_product_names = [p.product_id.lower() for p in matched_products]
+
+    rationale_ids = {item.product_id.lower() for item in output.product_rationales}
+    if set(valid_product_names) != rationale_ids:
+        return False
+    if not output.sales_playbook.discovery_questions or not output.sales_playbook.talk_track or not output.sales_playbook.next_actions:
+        return False
     
     # Dump all text from the output to scan it
     all_text = (
@@ -122,7 +152,8 @@ def run_strategist(
     lead_score: float,
     priority: int,
     matched_products: List[Recommendation],
-    gov_support: List[GovernmentSupportMatch]
+    gov_support: List[GovernmentSupportMatch],
+    product_context: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> StrategistOutput:
     
     chain = create_strategist_chain(llm)
@@ -138,6 +169,7 @@ def run_strategist(
         "diagnosis": [p.model_dump() for p in diagnosis],
         "scores_and_impact": scores_and_impact,
         "matched_products": [p.model_dump() for p in matched_products],
+        "product_context": product_context or {},
         "gov_support": [g.model_dump() for g in gov_support]
     }
     
@@ -158,8 +190,8 @@ def run_strategist(
     except Exception:
         pass
 
-    # Safe assessment-specific fallback. It uses the diagnosis and product
-    # matcher, so different leads cannot receive the same generic sales story.
+    # Safe assessment-specific fallback. It uses diagnosis evidence and the
+    # verified product catalog instead of a generic hardcoded sales story.
     primary_pain = diagnosis[0] if diagnosis else None
     primary_problem = primary_pain.problem if primary_pain else "the identified operational bottleneck"
     primary_cause = primary_pain.root_cause if primary_pain else "the current operating process"
@@ -169,6 +201,27 @@ def run_strategist(
     lowest_dimension = min(maturity_scores, key=maturity_scores.get) if maturity_scores else "digital operations"
     readable_dimension = lowest_dimension.replace("_", " ")
     impact_note = f" The current annual opportunity cost is RM {impact_cost:,.0f}." if impact_cost else ""
+    evidence = primary_pain.evidence if primary_pain else []
+    rationales = []
+    for recommendation in matched_products:
+        context = (product_context or {}).get(recommendation.product_id, {})
+        benefits = context.get("benefits") or [recommendation.expected_outcome]
+        prerequisites = context.get("prerequisites") or []
+        rationales.append(ProductRationale(
+            product_id=recommendation.product_id,
+            observed_evidence=evidence,
+            why_suitable=(
+                f"{recommendation.product_id.upper()} is matched to {recommendation.linked_pain_point} because "
+                f"the assessment identifies {primary_cause}."
+            ),
+            relevant_capabilities=benefits,
+            implementation_suggestion=(
+                f"Start with the workflow causing {primary_problem}, assign one process owner, "
+                "and review adoption after the first operating cycle."
+            ),
+            prerequisites=prerequisites,
+            expected_outcome=recommendation.expected_outcome,
+        ))
 
     return StrategistOutput(
         pain_point_explanations=[
@@ -203,5 +256,29 @@ def run_strategist(
                 f"Ask the prospect to walk through the bottleneck, then show the smallest {primary_product} "
                 "workflow that removes that friction."
             ),
-        )
+        ),
+        product_rationales=rationales,
+        sales_playbook=SalesPlaybook(
+            situation_summary=f"{primary_problem} is linked to {primary_cause}.",
+            discovery_questions=[
+                f"Can you walk me through where {primary_problem.lower()} happens today?",
+                "Which team member owns the process when an exception occurs?",
+                "What would a successful first month of improvement look like?",
+            ],
+            talk_track=[
+                f"Reflect the evidence: {primary_problem} is creating avoidable friction.",
+                f"Connect the cause to a focused {primary_product} workflow, rather than a disruptive replacement.",
+                "Agree on one measurable workflow outcome before discussing a wider rollout.",
+            ],
+            likely_objections=["We are too busy to change our process.", "We need to see value before committing."],
+            objection_responses=[
+                "Start with one contained workflow and a named owner to minimise disruption.",
+                "Use the agreed workflow outcome and current effort as the review point for the first phase.",
+            ],
+            next_actions=[
+                "Book a workflow-discovery session with the process owner.",
+                f"Demonstrate {primary_product} against the identified bottleneck.",
+                "Confirm implementation prerequisites and a first-phase success measure.",
+            ],
+        ),
     )

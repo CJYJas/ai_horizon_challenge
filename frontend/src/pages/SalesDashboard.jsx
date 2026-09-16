@@ -40,6 +40,8 @@ export function SalesDashboard() {
       lead.company_industry,
       lead.top_pain_point_problem,
       lead.recommended_transformation,
+      lead.email,
+      lead.phone,
     ].some((value) => value?.toLowerCase().includes(query));
     return matchesSearch && (priorityFilter === 'all' || String(lead.priority) === priorityFilter);
   });
@@ -57,7 +59,7 @@ export function SalesDashboard() {
             </h1>
             <p className="text-gray-500 mt-2">Identify and prioritize high-value transformation leads.</p>
           </div>
-          <Button onClick={() => navigate('/assessment')}>
+          <Button onClick={() => navigate('/')}>
             New Assessment <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </div>

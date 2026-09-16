@@ -8,6 +8,8 @@ from backend.ai_chains.strategist import (
     PainPointExplanation, 
     RoadmapNarrative, 
     SalesBrief,
+    ProductRationale,
+    SalesPlaybook,
     validate_strategist_output
 )
 from backend.ai_chains.analyst import run_analyst_loop, AnalystOutput, InformationGap
@@ -44,7 +46,23 @@ class MockStrategistChain:
                 one_line_hook="Hot lead",
                 why_this_lead_is_hot=["High urgency"],
                 recommended_approach="Sell CRM"
-            )
+            ),
+            product_rationales=[
+                ProductRationale(
+                    product_id=product["product_id"],
+                    observed_evidence=["Answers"],
+                    why_suitable="Matched to the observed workflow.",
+                    relevant_capabilities=["Workflow support"],
+                    implementation_suggestion="Start with one workflow.",
+                    expected_outcome="Improve workflow visibility.",
+                )
+                for product in inputs["matched_products"]
+            ],
+            sales_playbook=SalesPlaybook(
+                discovery_questions=["What is the current workflow?"],
+                talk_track=["Connect the workflow to the solution."],
+                next_actions=["Book a discovery call."],
+            ),
         )
 
 class MockBadStrategistChain:
