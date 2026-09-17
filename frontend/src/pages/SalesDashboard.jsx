@@ -136,6 +136,20 @@ export function SalesDashboard() {
                           {lead.email} {lead.email && lead.phone && '|'} {lead.phone}
                         </p>
                       )}
+                      {lead.company_profile?.current_digital_tools?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {lead.company_profile.current_digital_tools.slice(0, 3).map((tool, idx) => (
+                            <span key={idx} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 capitalize">
+                              {tool}
+                            </span>
+                          ))}
+                          {lead.company_profile.current_digital_tools.length > 3 && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">
+                              +{lead.company_profile.current_digital_tools.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">

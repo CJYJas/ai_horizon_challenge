@@ -95,7 +95,40 @@ export function LeadDetail() {
                 </div>
               </div>
               <div className="pt-4 border-t border-gray-100">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Maturity Radar</p>
+                {(() => {
+                  const labels = {
+                    digital_presence: 'Digital Presence',
+                    productivity: 'Productivity',
+                    customer_management: 'Customer Management',
+                    data_security: 'Data & Security',
+                    ai_readiness: 'AI Readiness',
+                  };
+                  let minScore = Infinity;
+                  let biggestGap = 'Digital Presence';
+                  if (maturity_scores) {
+                    for (const [key, score] of Object.entries(maturity_scores)) {
+                      if (score < minScore) {
+                        minScore = score;
+                        biggestGap = labels[key] || key;
+                      }
+                    }
+                  }
+                  return (
+                    <div className="mb-6 bg-amber-50/50 p-4 rounded-xl border border-amber-100/50">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Diagnostic Insight</p>
+                      <p className="text-gray-500 text-xs mb-1">Biggest digital gap:</p>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm font-bold text-amber-500">{biggestGap}</span>
+                      </div>
+                      <p className="text-gray-500 text-xs leading-relaxed">
+                        {diagnosis_data.maturity_gap_explanation || "Addressing this area will yield the highest immediate ROI for this lead."}
+                      </p>
+                    </div>
+                  );
+                })()}
+                
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 text-center">Digital Maturity Index</p>
                 <MaturityChart scores={maturity_scores} compact />
               </div>
             </div>

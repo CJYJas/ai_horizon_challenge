@@ -48,7 +48,7 @@ def is_repeated_question(question: str, answers: List[Dict[str, Any]]) -> bool:
 
 def classify_question_topic(question: str) -> str:
     terms = _question_terms(question)
-    if terms & {"tool", "tools", "app", "apps", "system", "systems", "workflow", "process", "manual"}:
+    if terms & {"tool", "tools", "app", "apps", "system", "systems", "process", "manual"}:
         return "tools_workflow"
     if terms & {"hour", "hours", "time", "often", "week", "volume"}:
         return "workload"
@@ -104,13 +104,54 @@ def create_analyst_chain(llm: BaseChatModel):
     parser = PydanticOutputParser(pydantic_object=AnalystOutput)
     
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are an expert AI Digital Transformation Consultant diagnosing SME business problems. "
-                   "Based on the company profile and answers provided, form hypotheses about their operational bottlenecks. "
-                   "If you need more information to make a confident diagnosis, identify the information gap and ask ONE targeted follow-up question. "
-                   "Do not ask a checklist of questions. Never repeat or substantially rephrase a question in the Answers so far; "
-                   "if it has already been answered, use it rather than asking it again. Company name, industry, employee count, "
-                   "email and phone are authoritative profile fields: never ask for them. Ask only about tools/workflow, workload, or desired outcome.\n{format_instructions}"),
-        ("human", "Company Profile: {company_profile}\n\nAnswers so far: {answers}")
+        ("system",
+        """You are a senior AI Digital Transformation Consultant conducting an SME diagnostic.
+
+        Your task is to analyze the Company Profile and Answers so far and identify the MOST PLAUSIBLE
+        underlying operational bottleneck.
+
+        Do NOT simply summarize what the company said.
+        Do NOT invent facts that are not supported by the provided information.
+
+        For each diagnosis, reason from:
+        1. OBSERVATION — What concrete fact did the company provide?
+        2. BOTTLENECK — What operational problem does this suggest?
+        3. IMPACT — What business consequence could this create?
+        4. INFORMATION GAP — What missing information prevents higher confidence?
+        5. NEXT QUESTION — If an important gap exists, ask ONE targeted question that would
+        meaningfully distinguish between possible causes.
+
+        A strong hypothesis must connect the user's evidence to a specific business process,
+        not merely describe a general problem such as "inefficiency", "manual work", or
+        "lack of automation".
+
+        Prefer specific hypotheses such as:
+        - duplicated data entry between systems
+        - delayed reporting caused by manual consolidation
+        - fragmented customer information across tools
+        - approval bottlenecks caused by spreadsheet/email workflows
+        - operational workload increasing faster than the current process can handle
+
+        Avoid:
+        - generic statements
+        - unsupported assumptions
+        - repeating information already provided
+        - questions whose answers are already present
+        - multiple questions
+        - questions about company name, industry, employee count, email, or phone
+
+        If the evidence is already sufficient, DO NOT ask a follow-up question.
+        Instead, produce the diagnosis directly.
+
+        The goal is to uncover the underlying process problem, not merely restate the symptom.
+
+        {format_instructions}"""),
+            ("human",
+            """Company Profile:
+        {company_profile}
+
+        Answers so far:
+        {answers}""")
     ])
     
     # Try structured output first, but provide format_instructions for fallback parser
@@ -219,9 +260,62 @@ class DiagnosisSynthesis(BaseModel):
 def run_diagnosis_chain(llm: BaseChatModel, company_profile: Dict[str, Any], answers: List[Dict[str, Any]], hypotheses: List[str]) -> List[DiagnosticPoint]:
     parser = PydanticOutputParser(pydantic_object=DiagnosisSynthesis)
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are an expert AI Digital Transformation Consultant. Synthesize the collected hypotheses and answers into 1 or 2 high-impact Diagnostic Points. Ensure the evidence quotes the user's answers.\n{format_instructions}"),
-        ("human", "Profile: {company_profile}\nAnswers: {answers}\nHypotheses: {hypotheses}")
+        ("system",
+        """You are a senior AI Digital Transformation Consultant.
+
+    Your task is to convert the collected answers and hypotheses into 1 or 2
+    HIGH-CONFIDENCE, ACTIONABLE Diagnostic Points.
+
+    A Diagnostic Point is NOT a summary.
+
+    Each Diagnostic Point must identify:
+
+    - PROBLEM: the specific operational bottleneck
+    - EVIDENCE: direct evidence from the user's answers
+    - BUSINESS IMPACT: why the bottleneck matters
+    - ROOT CAUSE / MECHANISM: how the current workflow creates the problem
+    - DIGITAL OPPORTUNITY: what type of transformation could address it
+
+    Use the user's actual answers as evidence. Do not invent numbers, tools,
+    processes, or business impacts.
+
+    Prioritize diagnoses that:
+    1. are directly supported by multiple pieces of evidence,
+    2. identify a specific workflow or process bottleneck,
+    3. have meaningful operational or business impact,
+    4. could realistically be improved through digital transformation.
+
+    Avoid weak diagnoses such as:
+    - "The company could improve efficiency."
+    - "The company has manual processes."
+    - "The company should use AI."
+    - "Data management could be improved."
+
+    These are too generic unless you explain the exact process causing the problem.
+
+    Do not turn a symptom into a diagnosis.
+    Example:
+    Weak: "Reporting is slow."
+    Strong: "Monthly reporting depends on manually consolidating data from
+    multiple sources, creating delays and increasing the risk of inconsistent figures."
+
+    Evidence must quote or closely reference the user's actual answer.
+
+    If the evidence is insufficient to confidently identify a bottleneck,
+    state the uncertainty rather than inventing a diagnosis.
+
+    {format_instructions}"""),
+        ("human",
+        """Company Profile:
+    {company_profile}
+
+    Answers:
+    {answers}
+
+    Hypotheses:
+    {hypotheses}""")
     ])
+
     structured_llm = llm.with_structured_output(DiagnosisSynthesis)
     
     inputs = {

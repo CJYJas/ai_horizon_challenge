@@ -37,6 +37,7 @@ class DiagnosisResponse(BaseModel):
     recommendations: List[Recommendation]
     government_support: List[GovernmentSupportMatch]
     lead_score: float
+    maturity_gap_explanation: Optional[str] = None
 
 class ImpactSimulationRequest(BaseModel):
     hours_per_week: float
@@ -74,6 +75,7 @@ class LeadCardResponse(BaseModel):
     created_at: str
     email: Optional[str] = None
     phone: Optional[str] = None
+    company_profile: CompanyProfile
 
 class LeadDetailResponse(BaseModel):
     assessment_id: str

@@ -20,7 +20,7 @@ def get_llm():
     model = (
         os.getenv("OPENROUTER_MODEL")
         or os.getenv("LLM_MODEL")
-        or "google/gemini-2.0-flash-001"
+        or "google/gemini-2.5-flash"
     )
     temperature = float(os.getenv("LLM_TEMPERATURE", "0"))
     max_tokens = int(os.getenv("LLM_MAX_TOKENS", "1500"))

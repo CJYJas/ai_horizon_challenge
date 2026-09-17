@@ -172,7 +172,43 @@ export function Report() {
               <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
                 <Activity className="w-6 h-6 text-primary-600" /> Digital Maturity
               </h2>
+              
+              {/* Diagnostic Insight Card */}
+              {(() => {
+                const labels = {
+                  digital_presence: 'Digital Presence',
+                  productivity: 'Productivity',
+                  customer_management: 'Customer Management',
+                  data_security: 'Data & Security',
+                  ai_readiness: 'AI Readiness',
+                };
+                let minScore = Infinity;
+                let biggestGap = 'Digital Presence';
+                if (maturity_scores) {
+                  for (const [key, score] of Object.entries(maturity_scores)) {
+                    if (score < minScore) {
+                      minScore = score;
+                      biggestGap = labels[key] || key;
+                    }
+                  }
+                }
+                return (
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Diagnostic Insight</p>
+                    <p className="text-gray-500 text-lg mb-2">Your biggest digital gap is</p>
+                    <div className="flex items-center gap-2 mb-4">
+                      <AlertTriangle className="w-6 h-6 text-amber-500" />
+                      <span className="text-2xl font-bold text-amber-500">{biggestGap}</span>
+                    </div>
+                    <p className="text-gray-500">
+                      {diagnosis_data.maturity_gap_explanation || "Addressing this area will yield the highest immediate ROI for your transformation journey."}
+                    </p>
+                  </div>
+                );
+              })()}
+
               <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6 text-center">Digital Maturity Index</p>
                 <MaturityChart scores={maturity_scores} />
               </div>
             </section>
@@ -293,6 +329,12 @@ export function Report() {
                 </div>
               </section>
             )}
+
+            {/* 12. Thank You / Next Steps */}
+            <section className="page-break-inside-avoid mt-12 bg-primary-50 p-8 rounded-2xl text-center border border-primary-100">
+              <h2 className="text-2xl font-bold text-primary-900 mb-4">Thank you for your time!</h2>
+              <p className="text-lg text-primary-800">Our team will contact you shortly to discuss your personalized digital transformation journey.</p>
+            </section>
 
           </div>
         </div>

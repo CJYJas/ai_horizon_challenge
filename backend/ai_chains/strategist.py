@@ -49,6 +49,7 @@ class StrategistOutput(BaseModel):
     sales_brief: SalesBrief
     product_rationales: List[ProductRationale] = Field(default_factory=list)
     sales_playbook: SalesPlaybook = Field(default_factory=SalesPlaybook)
+    maturity_gap_explanation: Optional[str] = Field(default=None, description="A 1-2 sentence explanation of why the company scored lowest in their weakest digital maturity dimension, based on their current tools and diagnosis.")
 
 
 def _invoke_chain(chain, inputs: Dict[str, Any]):
@@ -68,6 +69,7 @@ def create_strategist_chain(llm: BaseChatModel):
                    "CRITICAL REQUIREMENT: For EVERY SINGLE matched product in the input, you MUST include a corresponding detailed 'product_rationales' entry. "
                    "Provide extremely strong, detailed, and persuasive reasoning for why the product is suitable based on the exact assessment evidence. Include clear 'how to start' steps. "
                    "Also produce a practical and detailed sales playbook: discovery questions, talk track, likely objections with strong responses, and next actions. "
+                   "You must also generate a 'maturity_gap_explanation' which is a 1-2 sentence explanation of why the company scored lowest in their weakest digital maturity dimension, based on their current tools. "
                    "If government support is matched, ALWAYS use the exact phrase 'Potentially eligible' and never guarantee it.\n"
                    "{format_instructions}"),
         ("human", "Diagnosis: {diagnosis}\n\nScores & Impact: {scores_and_impact}\n\n"
@@ -180,6 +182,8 @@ def run_strategist(
         output = _invoke_chain(chain, inputs)
         if validate_strategist_output(output, matched_products, impact_cost, lead_score):
             return output
+        else:
+            print("Validation failed on first attempt.")
 
         inputs["scores_and_impact"]["WARNING"] = (
             "PREVIOUS OUTPUT FAILED VALIDATION. DO NOT INVENT NUMBERS OR GUARANTEE GRANTS."
@@ -187,7 +191,10 @@ def run_strategist(
         output = _invoke_chain(chain, inputs)
         if validate_strategist_output(output, matched_products, impact_cost, lead_score):
             return output
-    except Exception:
+        else:
+            print("Validation failed on second attempt.")
+    except Exception as e:
+        print("Exception in Strategist chain:", e)
         pass
 
     # Safe assessment-specific fallback. It uses diagnosis evidence and the
@@ -281,4 +288,5 @@ def run_strategist(
                 "Confirm implementation prerequisites and a first-phase success measure.",
             ],
         ),
+        maturity_gap_explanation=f"With the current tools, {readable_dimension} represents the largest gap and the most immediate opportunity for ROI."
     )

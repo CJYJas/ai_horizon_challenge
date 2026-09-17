@@ -110,7 +110,7 @@ def add_answer(id: str, req: AnswerRequest, db: Session = Depends(get_session), 
         raise HTTPException(status_code=404, detail="Assessment not found")
         
     # Append answer
-    answers = assessment.answers or []
+    answers = list(assessment.answers or [])
     answers.append({
         "question_id": f"q_{len(answers)+1}",
         "question_text": req.question_text or f"Assessment response {len(answers)+1}",
@@ -166,6 +166,7 @@ def get_diagnosis(id: str, db: Session = Depends(get_session), llm = Depends(get
             recommendations=[Recommendation(**recommendation) for recommendation in assessment.recommendations],
             government_support=[GovernmentSupportMatch(**support) for support in assessment.government_support],
             lead_score=assessment.lead_score,
+            maturity_gap_explanation=(assessment.diagnosis.get("narrative_report") or {}).get("maturity_gap_explanation")
         )
         
     rules = load_supporting_rules().model_dump()
@@ -250,7 +251,8 @@ def get_diagnosis(id: str, db: Session = Depends(get_session), llm = Depends(get
         maturity_scores=mat_scores,
         recommendations=matches["recommendations"],
         government_support=matches["government_support"],
-        lead_score=lead_score
+        lead_score=lead_score,
+        maturity_gap_explanation=sales_report.maturity_gap_explanation
     )
 
 @router.post("/assessments/{id}/impact-simulation", response_model=ImpactSimulationResponse)
@@ -369,7 +371,8 @@ def get_report(id: str, db: Session = Depends(get_session), llm = Depends(get_ll
         maturity_scores=assessment.maturity_scores,
         recommendations=recs,
         government_support=govs,
-        lead_score=assessment.lead_score
+        lead_score=assessment.lead_score,
+        maturity_gap_explanation=report.maturity_gap_explanation
     )
     
     return ReportResponse(
@@ -442,7 +445,8 @@ def get_leads(db: Session = Depends(get_session)):
             recommended_transformation=rec_trans,
             created_at=a.created_at,
             email=a.company_profile.get("email"),
-            phone=a.company_profile.get("phone")
+            phone=a.company_profile.get("phone"),
+            company_profile=a.company_profile
         ))
     return leads
 
@@ -480,7 +484,8 @@ def get_lead_detail(id: str, db: Session = Depends(get_session)):
         maturity_scores=a.maturity_scores or {},
         recommendations=recs,
         government_support=govs,
-        lead_score=a.lead_score
+        lead_score=a.lead_score,
+        maturity_gap_explanation=(a.diagnosis.get("narrative_report") or {}).get("maturity_gap_explanation")
     )
 
     rules = load_supporting_rules().model_dump()
