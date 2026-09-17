@@ -138,6 +138,42 @@
                 ]
             }
         },
+        "tool_mappings": {
+            "digital_presence": [
+                {"tools": ["website", "whatsapp", "crm"], "score": 4},
+                {"tools": ["website", "whatsapp"], "score": 3},
+                {"tools": ["website"], "score": 2},
+                {"tools": ["whatsapp"], "score": 2},
+                {"tools": [], "score": 1}
+            ],
+            "productivity": [
+                {"tools": ["crm", "pos"], "score": 4},
+                {"tools": ["crm"], "score": 3},
+                {"tools": ["pos"], "score": 3},
+                {"tools": ["spreadsheet"], "score": 2},
+                {"tools": [], "score": 1}
+            ],
+            "customer_management": [
+                {"tools": ["crm", "whatsapp"], "score": 4},
+                {"tools": ["crm"], "score": 3},
+                {"tools": ["whatsapp"], "score": 2},
+                {"tools": ["spreadsheet"], "score": 2},
+                {"tools": [], "score": 1}
+            ],
+            "data_security": [
+                {"tools": ["crm", "pos"], "score": 3},
+                {"tools": ["crm"], "score": 2},
+                {"tools": ["pos"], "score": 2},
+                {"tools": ["website"], "score": 2},
+                {"tools": [], "score": 1}
+            ],
+            "ai_readiness": [
+                {"tools": ["crm", "pos"], "score": 3},
+                {"tools": ["crm"], "score": 2},
+                {"tools": ["pos"], "score": 2},
+                {"tools": [], "score": 1}
+            ]
+        },
         "overall_score": {
             "formula": "sum(dimension_score * dimension_weight) / sum(dimension_weight)"
         },
@@ -209,6 +245,25 @@
                     "frequent_business_failure_or_downtime"
                 ]
             }
+        },
+        "keywords": {
+            "losing customer": "currently_losing_customers",
+            "customer churn": "currently_losing_customers",
+            "revenue": "revenue_impact",
+            "sales drop": "revenue_impact",
+            "manual": "regular_manual_work",
+            "hours a week": "regular_manual_work",
+            "hour per week": "regular_manual_work",
+            "whatsapp": "customer_follow_up_delays",
+            "spreadsheet": "recurring_operational_problem",
+            "excel": "recurring_operational_problem",
+            "delay": "customer_follow_up_delays",
+            "follow-up": "customer_follow_up_delays",
+            "productivity": "productivity_loss",
+            "security": "critical_security_issue",
+            "downtime": "frequent_business_failure_or_downtime",
+            "urgent": "major_operational_disruption",
+            "cannot scale": "major_operational_disruption"
         },
         "classification_rule": "Select the highest urgency level supported by explicit evidence in the SME's answers."
     },

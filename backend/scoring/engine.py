@@ -3,76 +3,25 @@ from typing import Dict, Any, List
 
 def calculate_maturity_scores(profile: Dict[str, Any], rules: Dict[str, Any]) -> Dict[str, float]:
     """
-    1. Calculate maturity scoring
-    ASSUMPTION DOCUMENTATION:
-    The existing supporting_rules.json provides string conditions (e.g., 'no_website_or_online_presence') 
-    but no machine-readable logic to map 'company_profile.current_digital_tools' to these conditions.
-    To avoid using an LLM, we implement the smallest explicit mapping here:
-    We use the presence of specific tools ('website', 'whatsapp', 'spreadsheet', 'crm', 'pos') 
-    to deterministically pick a score based on the highest matched condition.
+    1. Calculate maturity scoring using config-driven tool mappings.
     """
-    tools = profile.get("current_digital_tools", [])
+    tools = set(profile.get("current_digital_tools", []))
+    mappings = rules.get("maturity_scoring", {}).get("tool_mappings", {})
+    scores = {}
+
+    dimensions = ["digital_presence", "productivity", "customer_management", "data_security", "ai_readiness"]
     
-    # Base mapping logic based on tools presence
-    has_website = "website" in tools
-    has_whatsapp = "whatsapp" in tools
-    has_crm = "crm" in tools
-    has_spreadsheet = "spreadsheet" in tools
-    has_pos = "pos" in tools
+    for dim in dimensions:
+        dim_mappings = mappings.get(dim, [])
+        score = 1.0 # Default fallback
+        for mapping in dim_mappings:
+            required_tools = set(mapping.get("tools", []))
+            if required_tools.issubset(tools):
+                score = float(mapping.get("score", 1.0))
+                break # First match is the highest score based on mapping order
+        scores[dim] = score
 
-    # digital_presence
-    if has_website and has_whatsapp and has_crm:
-        dp_score = 4
-    elif has_website and has_whatsapp:
-        dp_score = 3
-    elif has_website or has_whatsapp:
-        dp_score = 2
-    else:
-        dp_score = 1
-
-    # productivity
-    if has_crm and has_pos:
-        pr_score = 4
-    elif has_crm or has_pos:
-        pr_score = 3
-    elif has_spreadsheet:
-        pr_score = 2
-    else:
-        pr_score = 1
-
-    # customer_management
-    if has_crm and has_whatsapp:
-        cm_score = 4
-    elif has_crm:
-        cm_score = 3
-    elif has_whatsapp or has_spreadsheet:
-        cm_score = 2
-    else:
-        cm_score = 1
-
-    # data_security (Assumption: CRM/POS implies some cloud backup usually, spreadsheets less so)
-    if has_crm and has_pos:
-        ds_score = 3
-    elif has_crm or has_pos or has_website:
-        ds_score = 2
-    else:
-        ds_score = 1
-
-    # ai_readiness (Depends on structured data like CRM)
-    if has_crm and has_pos:
-        ai_score = 3
-    elif has_crm or has_pos:
-        ai_score = 2
-    else:
-        ai_score = 1
-
-    return {
-        "digital_presence": float(dp_score),
-        "productivity": float(pr_score),
-        "customer_management": float(cm_score),
-        "data_security": float(ds_score),
-        "ai_readiness": float(ai_score)
-    }
+    return scores
 
 def calculate_weighted_maturity(scores: Dict[str, float], rules: Dict[str, Any]) -> float:
     """
@@ -92,11 +41,14 @@ def calculate_weighted_maturity(scores: Dict[str, float], rules: Dict[str, Any])
     
     return round(total_score / total_weight, 2)
 
-def calculate_impact(hours_per_week: float, hourly_rate: float, rules: Dict[str, Any]) -> float:
+def calculate_impact(hours_per_week: float, hourly_rate: float, rules: Dict[str, Any]) -> float | None:
     """
     3. Impact calculation
     Returns annual opportunity cost.
     """
+    if hours_per_week is None or hourly_rate is None:
+        return None
+        
     sim_rules = rules.get("impact_simulation", {})
     weeks_per_year = sim_rules.get("weeks_per_year", 52)
     
@@ -105,10 +57,13 @@ def calculate_impact(hours_per_week: float, hourly_rate: float, rules: Dict[str,
     
     return float(annual_opportunity_cost)
 
-def classify_impact(annual_opportunity_cost: float, rules: Dict[str, Any]) -> str:
+def classify_impact(annual_opportunity_cost: float | None, rules: Dict[str, Any]) -> str:
     """
     4. Impact classification
     """
+    if annual_opportunity_cost is None:
+        return "unestimated"
+        
     thresholds = rules.get("impact_scoring", {}).get("annual_opportunity_cost_thresholds", {})
     
     for level, limits in thresholds.items():
@@ -121,7 +76,7 @@ def classify_impact(annual_opportunity_cost: float, rules: Dict[str, Any]) -> st
                 
     return "low" # Fallback
 
-def derive_urgency_signals(profile: Dict[str, Any], answers: List[Dict[str, Any]]) -> List[str]:
+def derive_urgency_signals(profile: Dict[str, Any], answers: List[Dict[str, Any]], rules: Dict[str, Any]) -> List[str]:
     """
     Map free-text assessment evidence to configured urgency signal tokens.
     """
@@ -135,25 +90,8 @@ def derive_urgency_signals(profile: Dict[str, Any], answers: List[Dict[str, Any]
     text = " ".join(parts).lower()
     signals: List[str] = []
 
-    keyword_to_signal = {
-        "losing customer": "currently_losing_customers",
-        "customer churn": "currently_losing_customers",
-        "revenue": "revenue_impact",
-        "sales drop": "revenue_impact",
-        "manual": "regular_manual_work",
-        "hours a week": "regular_manual_work",
-        "hour per week": "regular_manual_work",
-        "whatsapp": "customer_follow_up_delays",
-        "spreadsheet": "recurring_operational_problem",
-        "excel": "recurring_operational_problem",
-        "delay": "customer_follow_up_delays",
-        "follow-up": "customer_follow_up_delays",
-        "productivity": "productivity_loss",
-        "security": "critical_security_issue",
-        "downtime": "frequent_business_failure_or_downtime",
-        "urgent": "major_operational_disruption",
-        "cannot scale": "major_operational_disruption",
-    }
+    keyword_to_signal = rules.get("urgency_scoring", {}).get("keywords", {})
+    
     for keyword, signal in keyword_to_signal.items():
         if keyword in text:
             signals.append(signal)
@@ -193,7 +131,7 @@ def calculate_priority(impact_level: str, urgency_level: str, rules: Dict[str, A
     key = f"{impact_level}_{urgency_level}"
     return matrix.get(key, 5) # Default to lowest priority 5
 
-def calculate_lead_score(impact_cost: float, urgency_level: str, maturity_score: float, rules: Dict[str, Any]) -> float:
+def calculate_lead_score(impact_cost: float | None, urgency_level: str, maturity_score: float, rules: Dict[str, Any]) -> float:
     """
     7. Lead score
     """
@@ -206,18 +144,19 @@ def calculate_lead_score(impact_cost: float, urgency_level: str, maturity_score:
     w_gap = weights.get("digitisation_gap", 0.2)
     
     # Normalise Impact
-    impact_norm_rules = norms.get("impact", {})
-    impact_thresholds = impact_norm_rules.get("thresholds", {})
-    impact_cap = impact_norm_rules.get("cap_at", 100)
-    
     impact_norm = 0
-    # Sort thresholds descending to find the highest bracket
-    sorted_thresholds = sorted([(float(k), v) for k, v in impact_thresholds.items()], reverse=True)
-    for threshold_val, norm_val in sorted_thresholds:
-        if impact_cost >= threshold_val:
-            impact_norm = norm_val
-            break
-    impact_norm = min(impact_norm, impact_cap)
+    if impact_cost is not None:
+        impact_norm_rules = norms.get("impact", {})
+        impact_thresholds = impact_norm_rules.get("thresholds", {})
+        impact_cap = impact_norm_rules.get("cap_at", 100)
+        
+        # Sort thresholds descending to find the highest bracket
+        sorted_thresholds = sorted([(float(k), v) for k, v in impact_thresholds.items()], reverse=True)
+        for threshold_val, norm_val in sorted_thresholds:
+            if impact_cost >= threshold_val:
+                impact_norm = norm_val
+                break
+        impact_norm = min(impact_norm, impact_cap)
     
     # Normalise Urgency
     urgency_norm = norms.get("urgency", {}).get(urgency_level, 33)
@@ -229,7 +168,7 @@ def calculate_lead_score(impact_cost: float, urgency_level: str, maturity_score:
     lead_score = (w_impact * impact_norm) + (w_urgency * urgency_norm) + (w_gap * gap_norm)
     return round(lead_score, 2)
 
-def generate_lead_score_reasons(impact_cost: float, urgency_level: str, maturity_score: float, rules: Dict[str, Any]) -> List[str]:
+def generate_lead_score_reasons(impact_cost: float | None, urgency_level: str, maturity_score: float, rules: Dict[str, Any]) -> List[str]:
     """
     8. Lead score reasons
     """
@@ -238,9 +177,16 @@ def generate_lead_score_reasons(impact_cost: float, urgency_level: str, maturity
     max_reasons = lead_rules.get("maximum_reasons", 4)
     
     # Recreate normalisation values for conditions
-    norms = lead_rules.get("normalisation", {})
     gap_norm = ((5.0 - maturity_score) / 5.0) * 100.0
     impact_level = classify_impact(impact_cost, rules)
+    
+    evaluators = {
+        "impact_level_is_high": lambda: impact_level == "high",
+        "urgency_level_is_high": lambda: urgency_level == "high",
+        "digitisation_gap_norm_is_at_least_60": lambda: gap_norm >= 60,
+        "annual_opportunity_cost_is_at_least_20000": lambda: impact_cost is not None and impact_cost >= 20000,
+        "multiple_maturity_dimensions_below_3": lambda: maturity_score < 3
+    }
     
     reasons = []
     
@@ -248,21 +194,9 @@ def generate_lead_score_reasons(impact_cost: float, urgency_level: str, maturity
         condition = rule.get("condition")
         reason = rule.get("reason")
         
-        matched = False
-        if condition == "impact_level_is_high" and impact_level == "high":
-            matched = True
-        elif condition == "urgency_level_is_high" and urgency_level == "high":
-            matched = True
-        elif condition == "digitisation_gap_norm_is_at_least_60" and gap_norm >= 60:
-            matched = True
-        elif condition == "annual_opportunity_cost_is_at_least_20000" and impact_cost >= 20000:
-            matched = True
-        elif condition == "multiple_maturity_dimensions_below_3" and maturity_score < 3: 
-            # Note: The condition says 'multiple_maturity_dimensions_below_3' but we only have overall maturity here.
-            # Using overall maturity < 3 as a proxy to avoid requiring the full scores dict.
-            matched = True
-            
-        if matched and len(reasons) < max_reasons:
-            reasons.append(reason)
+        eval_fn = evaluators.get(condition)
+        if eval_fn and eval_fn():
+            if len(reasons) < max_reasons:
+                reasons.append(reason)
             
     return reasons

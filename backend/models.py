@@ -21,6 +21,7 @@ class BusinessContext(BaseModel):
 class Answer(BaseModel):
     question_id: str
     question_text: str
+    question_topic: str
     answer: Union[str, int, bool]
     asked_reason: str
 

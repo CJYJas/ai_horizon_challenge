@@ -11,9 +11,10 @@ from backend.api.schemas import (
     ImpactSimulationRequest, ImpactSimulationResponse,
     ReportResponse, SalesReportResponse, LeadCardResponse, LeadDetailResponse
 )
-from backend.models import SMEAssessment, TopPainPoint, Recommendation, GovernmentSupportMatch, CompanyProfile
+from backend.models import SMEAssessment, TopPainPoint, Recommendation, GovernmentSupportMatch, CompanyProfile, Answer
 from backend.ai_chains.analyst import run_analyst_loop, run_diagnosis_chain, classify_question_topic
 from backend.ai_chains.strategist import run_strategist, StrategistOutput
+from backend.services.assessment import generate_diagnosis, generate_report, lead_metrics_from_assessment
 from backend.scoring.engine import (
     calculate_maturity_scores, calculate_weighted_maturity,
     calculate_impact, classify_impact, classify_urgency, derive_urgency_signals,
@@ -29,53 +30,6 @@ router = APIRouter()
 def _opening_question(profile: dict) -> str:
     """Open on operational context, never profile fields already collected."""
     return "Which tools, apps, or manual steps do you currently use to run your most important daily workflow?"
-
-
-def _product_context(recommendations: List[Recommendation]) -> dict:
-    catalog = {product.product_id: product for product in load_exabytes_products()}
-    context = {}
-    for recommendation in recommendations:
-        product = catalog.get(recommendation.product_id)
-        if product:
-            context[product.product_id] = {
-                "name": product.name,
-                "benefits": product.benefits,
-                "prerequisites": product.prerequisites,
-                "category": product.category,
-                "source_url": product.source_url,
-            }
-    return context
-
-
-def _lead_metrics_from_assessment(assessment: SMEAssessment, rules: dict) -> dict:
-    sim = assessment.impact_simulation or {}
-    hrs_per_week = sim.get("input_hours_per_week", 20.0)
-    hr_rate = sim.get("hourly_rate_assumption", 25.0)
-    impact_cost = calculate_impact(hrs_per_week, hr_rate, rules)
-
-    mat_scores = assessment.maturity_scores or calculate_maturity_scores(assessment.company_profile, rules)
-    overall_maturity = calculate_weighted_maturity(mat_scores, rules)
-
-    urgency = classify_urgency(
-        derive_urgency_signals(assessment.company_profile, assessment.answers or []),
-        rules,
-    )
-    impact_level = classify_impact(impact_cost, rules)
-    priority = calculate_priority(impact_level, urgency, rules)
-    lead_score = calculate_lead_score(impact_cost, urgency, overall_maturity, rules)
-    reasons = generate_lead_score_reasons(impact_cost, urgency, overall_maturity, rules)
-
-    return {
-        "mat_scores": mat_scores,
-        "overall_maturity": overall_maturity,
-        "impact_cost": impact_cost,
-        "urgency": urgency,
-        "impact_level": impact_level,
-        "priority": priority,
-        "lead_score": lead_score,
-        "lead_score_reasons": reasons,
-    }
-
 
 @router.post("/assessments", response_model=CreateAssessmentResponse)
 def create_assessment(req: CreateAssessmentRequest, db: Session = Depends(get_session)):
@@ -111,13 +65,14 @@ def add_answer(id: str, req: AnswerRequest, db: Session = Depends(get_session), 
         
     # Append answer
     answers = list(assessment.answers or [])
-    answers.append({
-        "question_id": f"q_{len(answers)+1}",
-        "question_text": req.question_text or f"Assessment response {len(answers)+1}",
-        "question_topic": req.question_topic or classify_question_topic(req.question_text or ""),
-        "answer": req.answer,
-        "asked_reason": "Dynamic"
-    })
+    new_answer = Answer(
+        question_id=f"q_{len(answers)+1}",
+        question_text=req.question_text or f"Assessment response {len(answers)+1}",
+        question_topic=req.question_topic or classify_question_topic(req.question_text or ""),
+        answer=req.answer,
+        asked_reason="Dynamic"
+    )
+    answers.append(new_answer.model_dump())
     
     # Run analyst chain to see if gap exists
     try:
@@ -169,90 +124,31 @@ def get_diagnosis(id: str, db: Session = Depends(get_session), llm = Depends(get
             maturity_gap_explanation=(assessment.diagnosis.get("narrative_report") or {}).get("maturity_gap_explanation")
         )
         
-    rules = load_supporting_rules().model_dump()
+    # Run core diagnosis logic via service layer
+    diagnosis_data = generate_diagnosis(assessment, llm)
     
-    hypotheses = assessment.diagnosis.get("hypotheses", ["General operational bottleneck"])
-    
-    # Run Diagnosis Chain to synthesize real insights
-    diag_pts = run_diagnosis_chain(llm, assessment.company_profile, assessment.answers, hypotheses)
-    
-    metrics = _lead_metrics_from_assessment(assessment, rules)
-    mat_scores = metrics["mat_scores"]
-    overall_maturity = metrics["overall_maturity"]
-    impact_cost = metrics["impact_cost"]
-    urgency = metrics["urgency"]
-    priority = metrics["priority"]
-    lead_score = metrics["lead_score"]
-    lead_score_reasons = metrics["lead_score_reasons"]
-    
-    pain_points = []
-    for rank, pt in enumerate(diag_pts, start=1):
-        pain_points.append(
-            TopPainPoint(
-                problem=pt.problem,
-                root_cause=pt.root_cause,
-                evidence=pt.evidence,
-                business_impact=pt.business_impact,
-                impact_estimate=str(impact_cost),
-                urgency=urgency,
-                priority_rank=rank,
-            )
-        )
-    
-    # Match solutions
-    # Need to cast profile dict to CompanyProfile schema
-    profile_model = CompanyProfile(**assessment.company_profile)
-    matches = run_solution_matcher(pain_points, profile_model)
-    
-    # Persist the generated data
-    assessment.diagnosis["pain_points"] = [p.model_dump() for p in pain_points]
-    assessment.diagnosis["overall_priority"] = priority
-    
-    # Need to update the dictionary attribute so SQLAlchemy knows it changed
-    assessment.diagnosis = assessment.diagnosis.copy()
-    
-    assessment.maturity_scores = mat_scores
-    assessment.recommendations = [r.model_dump() for r in matches["recommendations"]]
-    assessment.government_support = [g.model_dump() for g in matches["government_support"]]
-    assessment.lead_score = lead_score
-    assessment.lead_score_reasons = lead_score_reasons
-
-    # Generate and store an LLM sales brief as part of the completed diagnosis.
-    # The sales workspace can therefore show a lead-specific conversation plan
-    # immediately, before a salesperson opens the longer client report.
-    sales_report = run_strategist(
-        llm=llm,
-        diagnosis=pain_points,
-        maturity_scores=mat_scores,
-        impact_cost=impact_cost,
-        lead_score=lead_score,
-        priority=priority,
-        matched_products=matches["recommendations"],
-        gov_support=matches["government_support"],
-        product_context=_product_context(matches["recommendations"]),
-    )
-    assessment.lead_score_reasons = sales_report.sales_brief.why_this_lead_is_hot
-    assessment.sales_brief = normalize_sales_brief(
-        sales_report.sales_brief.model_dump(),
-        assessment.company_profile,
-        pain_points,
-        sales_report.sales_brief.why_this_lead_is_hot,
-        matches["recommendations"],
-    )
+    # Update assessment state
     assessment.diagnosis = {
         **assessment.diagnosis,
-        "narrative_report": sales_report.model_dump(),
+        "pain_points": diagnosis_data["pain_points"],
+        "overall_priority": diagnosis_data["overall_priority"],
     }
+    assessment.maturity_scores = diagnosis_data["maturity_scores"]
+    assessment.recommendations = diagnosis_data["recommendations"]
+    assessment.government_support = diagnosis_data["government_support"]
+    assessment.lead_score = diagnosis_data["lead_score"]
+    assessment.lead_score_reasons = diagnosis_data["lead_score_reasons"]
+    
     db.add(assessment)
     db.commit()
     
     return DiagnosisResponse(
-        top_pain_points=pain_points,
-        maturity_scores=mat_scores,
-        recommendations=matches["recommendations"],
-        government_support=matches["government_support"],
-        lead_score=lead_score,
-        maturity_gap_explanation=sales_report.maturity_gap_explanation
+        top_pain_points=[TopPainPoint(**p) for p in diagnosis_data["pain_points"]],
+        maturity_scores=diagnosis_data["maturity_scores"],
+        recommendations=[Recommendation(**r) for r in diagnosis_data["recommendations"]],
+        government_support=[GovernmentSupportMatch(**g) for g in diagnosis_data["government_support"]],
+        lead_score=diagnosis_data["lead_score"],
+        maturity_gap_explanation=None
     )
 
 @router.post("/assessments/{id}/impact-simulation", response_model=ImpactSimulationResponse)
@@ -283,7 +179,7 @@ def simulate_impact(id: str, req: ImpactSimulationRequest, db: Session = Depends
     assessment.impact_simulation = sim_data
 
     rules = load_supporting_rules().model_dump()
-    metrics = _lead_metrics_from_assessment(assessment, rules)
+    metrics = lead_metrics_from_assessment(assessment, rules)
     assessment.lead_score = metrics["lead_score"]
     # Preserve the generated, lead-specific sales talking points. A simulation
     # changes the score, not the diagnosis behind the sales conversation.
@@ -334,23 +230,14 @@ def get_report(id: str, db: Session = Depends(get_session), llm = Depends(get_ll
     govs = [GovernmentSupportMatch(**g) for g in assessment.government_support]
     
     sim = assessment.impact_simulation or {}
-    impact_cost = sim.get("annual_opportunity_cost", 20800.0)
+    impact_cost = sim.get("annual_opportunity_cost")
     
     cached_report = (assessment.diagnosis or {}).get("narrative_report")
     if cached_report:
         report = StrategistOutput(**cached_report)
     else:
-        report = run_strategist(
-            llm=llm,
-            diagnosis=pain_points,
-            maturity_scores=assessment.maturity_scores,
-            impact_cost=impact_cost,
-            lead_score=assessment.lead_score,
-            priority=1,
-            matched_products=recs,
-            gov_support=govs,
-            product_context=_product_context(recs),
-        )
+        # Generate the report via the service layer
+        report = generate_report(assessment, llm)
         assessment.diagnosis = {**assessment.diagnosis, "narrative_report": report.model_dump()}
         
     # Save the sales brief reasons and the full brief to DB (with display-friendly fields)
@@ -381,7 +268,6 @@ def get_report(id: str, db: Session = Depends(get_session), llm = Depends(get_ll
         diagnosis_data=diag_resp,
         impact_simulation=assessment.impact_simulation
     )
-
 
 @router.get("/leads/{id}/sales-report", response_model=SalesReportResponse)
 def get_sales_report(id: str, db: Session = Depends(get_session), llm = Depends(get_llm)):
@@ -489,7 +375,7 @@ def get_lead_detail(id: str, db: Session = Depends(get_session)):
     )
 
     rules = load_supporting_rules().model_dump()
-    metrics = _lead_metrics_from_assessment(a, rules)
+    metrics = lead_metrics_from_assessment(a, rules)
     lead_score_reasons = a.lead_score_reasons or metrics["lead_score_reasons"]
     sales_brief = normalize_sales_brief(
         a.sales_brief or {},

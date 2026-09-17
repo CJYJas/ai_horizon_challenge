@@ -5,6 +5,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.output_parsers import PydanticOutputParser
 from backend.models import TopPainPoint, Recommendation, GovernmentSupportMatch
+import logging
+
+logger = logging.getLogger(__name__)
 
 class PainPointExplanation(BaseModel):
     problem: str
@@ -82,16 +85,19 @@ def create_strategist_chain(llm: BaseChatModel):
         inputs["format_instructions"] = parser.get_format_instructions()
         try:
             return (prompt | structured_llm).invoke(inputs)
-        except Exception:
+        except Exception as e:
+            logger.warning("Strategist structured output failed, trying string parser fallback", exc_info=True)
             # Fallback for models that fail structured output
             raw_result = (prompt | llm).invoke(inputs)
             try:
                 return parser.parse(raw_result.content)
-            except Exception:
+            except Exception as e:
+                logger.warning("Strategist string parser fallback failed, trying regex fallback", exc_info=True)
                 # Regex fallback
                 match = re.search(r'```json\n(.*?)\n```', raw_result.content, re.DOTALL)
                 if match:
                     return StrategistOutput.model_validate_json(match.group(1))
+                logger.error("All strategist output parsing strategies failed")
                 raise
                 
     return run_chain
@@ -99,7 +105,7 @@ def create_strategist_chain(llm: BaseChatModel):
 def validate_strategist_output(
     output: StrategistOutput, 
     matched_products: List[Recommendation],
-    impact_cost: float,
+    impact_cost: float | None,
     lead_score: float
 ) -> bool:
     """
@@ -114,15 +120,7 @@ def validate_strategist_output(
         return False
     
     # Dump all text from the output to scan it
-    all_text = (
-        output.sme_report_summary + " " + 
-        output.roadmap_narrative.phase_1 + " " + 
-        output.roadmap_narrative.phase_2 + " " + 
-        output.roadmap_narrative.phase_3 + " " +
-        output.sales_brief.one_line_hook + " " +
-        " ".join(output.sales_brief.why_this_lead_is_hot) + " " +
-        output.sales_brief.recommended_approach
-    ).lower()
+    all_text = output.model_dump_json().lower()
     
     # 1. Check for absolute guarantee of government support
     bad_gov_phrases = ["definitely eligible", "guaranteed", "you qualify for"]
@@ -150,14 +148,13 @@ def run_strategist(
     llm: BaseChatModel,
     diagnosis: List[TopPainPoint],
     maturity_scores: Dict[str, float],
-    impact_cost: float,
+    impact_cost: float | None,
     lead_score: float,
     priority: int,
     matched_products: List[Recommendation],
     gov_support: List[GovernmentSupportMatch],
     product_context: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> StrategistOutput:
-    
     chain = create_strategist_chain(llm)
     
     scores_and_impact = {
@@ -183,7 +180,7 @@ def run_strategist(
         if validate_strategist_output(output, matched_products, impact_cost, lead_score):
             return output
         else:
-            print("Validation failed on first attempt.")
+            logger.warning("Strategist validation failed on first attempt.")
 
         inputs["scores_and_impact"]["WARNING"] = (
             "PREVIOUS OUTPUT FAILED VALIDATION. DO NOT INVENT NUMBERS OR GUARANTEE GRANTS."
@@ -192,9 +189,9 @@ def run_strategist(
         if validate_strategist_output(output, matched_products, impact_cost, lead_score):
             return output
         else:
-            print("Validation failed on second attempt.")
+            logger.error("Strategist validation failed on second attempt.")
     except Exception as e:
-        print("Exception in Strategist chain:", e)
+        logger.error("Exception in Strategist chain, using deterministic fallback", exc_info=True)
         pass
 
     # Safe assessment-specific fallback. It uses diagnosis evidence and the

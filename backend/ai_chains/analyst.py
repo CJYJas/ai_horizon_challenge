@@ -3,9 +3,11 @@ from pydantic import BaseModel, Field
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
-from langchain_core.runnables import RunnablePassthrough
 import json
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 AUTHORITATIVE_PROFILE_TERMS = {
@@ -160,17 +162,20 @@ def create_analyst_chain(llm: BaseChatModel):
     def run_chain(inputs):
         try:
             return (prompt | structured_llm).invoke(inputs)
-        except Exception:
+        except Exception as e:
+            logger.warning("Structured output failed, trying string parser fallback", exc_info=True)
             # Fallback for models that fail structured output
             raw_result = (prompt | llm).invoke(inputs)
             try:
                 # Try standard parsing
                 return parser.parse(raw_result.content)
-            except Exception:
+            except Exception as e:
+                logger.warning("String parser fallback failed, trying regex fallback", exc_info=True)
                 # Regex fallback to extract JSON block
                 match = re.search(r'```json\n(.*?)\n```', raw_result.content, re.DOTALL)
                 if match:
                     return AnalystOutput.model_validate_json(match.group(1))
+                logger.error("All analyst output parsing strategies failed")
                 raise
                 
     return run_chain
@@ -197,6 +202,7 @@ def run_analyst_loop(
                 "format_instructions": PydanticOutputParser(pydantic_object=AnalystOutput).get_format_instructions()
             })
         except Exception as e:
+            logger.warning("run_analyst_loop chain invocation failed, using deterministic fallback", exc_info=True)
             # Fallback on schema validation failure or LLM error
             output = AnalystOutput(
                 hypotheses=[_fallback_hypothesis(company_profile, answers)],
@@ -240,6 +246,7 @@ def run_analyst_loop(
         })
         output.information_gap.exists = False
     except Exception as e:
+        logger.warning("run_analyst_loop final chain invocation failed, using deterministic fallback", exc_info=True)
         output = AnalystOutput(
             hypotheses=[_fallback_hypothesis(company_profile, answers)],
             confidence="low",
@@ -328,12 +335,14 @@ def run_diagnosis_chain(llm: BaseChatModel, company_profile: Dict[str, Any], ans
     try:
         res = (prompt | structured_llm).invoke(inputs)
         return res.pain_points
-    except Exception:
+    except Exception as e:
+        logger.warning("run_diagnosis_chain structured output failed, trying string parser fallback", exc_info=True)
         try:
             raw = (prompt | llm).invoke(inputs)
             res = parser.parse(raw.content)
             return res.pain_points
-        except Exception:
+        except Exception as e:
+            logger.warning("run_diagnosis_chain all LLM strategies failed, using deterministic fallback", exc_info=True)
             evidence = _answer_texts(answers) or [str(item) for item in (company_profile.get("main_operational_problems") or [])]
             first_evidence = evidence[0] if evidence else "the current workflow"
             return [DiagnosticPoint(
