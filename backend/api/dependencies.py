@@ -17,13 +17,10 @@ def get_llm():
     openrouter_key = os.getenv("OPENROUTER_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY")
 
-    model = (
-        os.getenv("OPENROUTER_MODEL")
-        or os.getenv("LLM_MODEL")
-        or "google/gemini-2.5-flash"
-    )
+    model =("openrouter/free")
     temperature = float(os.getenv("LLM_TEMPERATURE", "0"))
-    max_tokens = int(os.getenv("LLM_MAX_TOKENS", "1500"))
+    max_tokens_env = os.getenv("LLM_MAX_TOKENS")
+    max_tokens = int(max_tokens_env) if max_tokens_env else None
 
     api_key = openrouter_key
     base_url = os.getenv("LLM_BASE_URL")

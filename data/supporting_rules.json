@@ -251,6 +251,9 @@
             "customer churn": "currently_losing_customers",
             "revenue": "revenue_impact",
             "sales drop": "revenue_impact",
+            "sales": "revenue_impact",
+            "increase sales": "revenue_impact",
+            "lost sales": "revenue_impact",
             "manual": "regular_manual_work",
             "hours a week": "regular_manual_work",
             "hour per week": "regular_manual_work",
@@ -263,7 +266,15 @@
             "security": "critical_security_issue",
             "downtime": "frequent_business_failure_or_downtime",
             "urgent": "major_operational_disruption",
-            "cannot scale": "major_operational_disruption"
+            "cannot scale": "major_operational_disruption",
+            "error": "recurring_operational_problem",
+            "fewer error": "recurring_operational_problem",
+            "errors": "recurring_operational_problem",
+            "human error": "recurring_operational_problem",
+            "mistake": "recurring_operational_problem",
+            "speed": "productivity_loss",
+            "visibility": "recurring_operational_problem",
+            "customer response": "customer_follow_up_delays"
         },
         "classification_rule": "Select the highest urgency level supported by explicit evidence in the SME's answers."
     },

@@ -46,9 +46,9 @@ def run_solution_matcher(
             score = len(overlap)
             
             # Explicit demo scoring boosts
-            if "customer" in user_words and product.category == "crm":
+            if ("customer" in user_words or "sales" in user_words or "order" in user_words or "orders" in user_words) and product.category in ["crm", "ecommerce"]:
                 score += 5
-            if ("whatsapp" in user_words or "fragmented" in user_words) and product.product_id in ["lark", "freshdesk", "freshchat", "freshsales"]:
+            if ("whatsapp" in user_words or "fragmented" in user_words or "error" in user_words or "errors" in user_words) and product.product_id in ["lark", "freshdesk", "freshchat", "freshsales"]:
                 score += 5
                 
             if score > 0:
@@ -62,6 +62,11 @@ def run_solution_matcher(
                     matched_evidence = user_evidence
                     
                 product_scores.append((score, product, list(set(matched_evidence))))
+
+        if not product_scores and products:
+            # Fallback to general productivity or CRM solution so recommendations are never empty
+            fallback_prod = next((p for p in products if p.product_id in ["freshsales", "lark", "google_workspace"]), products[0])
+            product_scores.append((1, fallback_prod, user_evidence or [pain_point.problem]))
                 
         if product_scores:
             product_scores.sort(key=lambda x: x[0], reverse=True)

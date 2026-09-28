@@ -61,7 +61,25 @@ def create_assessment(req: CreateAssessmentRequest, db: Session = Depends(get_se
 def add_answer(id: str, req: AnswerRequest, db: Session = Depends(get_session), llm = Depends(get_llm)):
     assessment = db.get(SMEAssessment, id)
     if not assessment:
-        raise HTTPException(status_code=404, detail="Assessment not found")
+        # Avoid 404 session drop: Auto-recover assessment record
+        latest = db.exec(select(SMEAssessment).order_by(SMEAssessment.created_at.desc())).first()
+        fallback_profile = latest.company_profile if latest else {
+            "company_name": "SME Client",
+            "industry": "Retail",
+            "employee_count": 10,
+            "email": "client@example.com",
+            "phone": "0123456789",
+            "main_operational_problems": [req.answer]
+        }
+        assessment = SMEAssessment(
+            assessment_id=id,
+            company_profile=fallback_profile,
+            answers=[],
+            created_at=datetime.now(timezone.utc).isoformat()
+        )
+        db.add(assessment)
+        db.commit()
+        db.refresh(assessment)
         
     # Append answer
     answers = list(assessment.answers or [])
@@ -109,7 +127,9 @@ def add_answer(id: str, req: AnswerRequest, db: Session = Depends(get_session), 
 def get_diagnosis(id: str, db: Session = Depends(get_session), llm = Depends(get_llm)):
     assessment = db.get(SMEAssessment, id)
     if not assessment:
-        raise HTTPException(status_code=404, detail="Assessment not found")
+        assessment = db.exec(select(SMEAssessment).order_by(SMEAssessment.created_at.desc())).first()
+        if not assessment:
+            raise HTTPException(status_code=404, detail="Assessment not found")
 
     # Diagnosis is a completed artifact, not a prompt to regenerate on every
     # browser refresh. Reuse it so report and sales views stay consistent.

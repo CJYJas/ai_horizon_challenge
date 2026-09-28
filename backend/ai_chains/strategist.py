@@ -86,17 +86,28 @@ def create_strategist_chain(llm: BaseChatModel):
         try:
             return (prompt | structured_llm).invoke(inputs)
         except Exception as e:
-            logger.warning("Strategist structured output failed, trying string parser fallback", exc_info=True)
+            logger.info("Strategist structured output failed, trying string parser fallback: %s", e)
             # Fallback for models that fail structured output
             raw_result = (prompt | llm).invoke(inputs)
+            content = getattr(raw_result, "content", str(raw_result))
+            clean_content = re.sub(r'<\|.*?\|>', '', content).strip()
             try:
-                return parser.parse(raw_result.content)
+                return parser.parse(clean_content)
             except Exception as e:
-                logger.warning("Strategist string parser fallback failed, trying regex fallback", exc_info=True)
                 # Regex fallback
-                match = re.search(r'```json\n(.*?)\n```', raw_result.content, re.DOTALL)
-                if match:
-                    return StrategistOutput.model_validate_json(match.group(1))
+                try:
+                    match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', clean_content)
+                    if match:
+                        return StrategistOutput.model_validate_json(match.group(1).strip())
+                except Exception:
+                    pass
+                j_start = clean_content.find('{')
+                j_end = clean_content.rfind('}')
+                if j_start != -1 and j_end != -1 and j_end > j_start:
+                    try:
+                        return StrategistOutput.model_validate_json(clean_content[j_start:j_end+1])
+                    except Exception:
+                        pass
                 logger.error("All strategist output parsing strategies failed")
                 raise
                 

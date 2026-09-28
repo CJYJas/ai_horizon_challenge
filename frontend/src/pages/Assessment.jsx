@@ -51,16 +51,41 @@ export function Assessment() {
     setIsSubmitting(true);
 
     try {
-      const res = await api.submitAnswer(assessmentId, currentAnswer, currentQuestion, questionTopic);
+      let activeId = assessmentId;
+      if (!activeId && profile) {
+        const createRes = await api.createAssessment(profile);
+        activeId = createRes.assessment_id;
+        setAssessmentId(activeId);
+      }
+
+      const res = await api.submitAnswer(activeId, currentAnswer, currentQuestion, questionTopic);
       
       if (res.is_complete) {
-        navigate(`/diagnosis/${assessmentId}`);
+        navigate(`/diagnosis/${activeId}`);
       } else {
         setQuestion(res.follow_up_question);
         setQuestionTopic(res.question_topic || 'adaptive');
       }
     } catch (err) {
       console.error(err);
+      if (err.response?.status === 404 && profile) {
+        try {
+          // Re-create session on 404 to avoid getting stuck
+          const createRes = await api.createAssessment(profile);
+          setAssessmentId(createRes.assessment_id);
+          const res = await api.submitAnswer(createRes.assessment_id, currentAnswer, currentQuestion, questionTopic);
+          if (res.is_complete) {
+            navigate(`/diagnosis/${createRes.assessment_id}`);
+            return;
+          } else {
+            setQuestion(res.follow_up_question);
+            setQuestionTopic(res.question_topic || 'adaptive');
+            return;
+          }
+        } catch (retryErr) {
+          console.error("Retry failed:", retryErr);
+        }
+      }
       alert("Analysis failed. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -142,6 +167,33 @@ export function Assessment() {
                   <p className="text-lg font-medium text-gray-900 leading-relaxed mb-6">
                     {question}
                   </p>
+
+                  {/* Quick Suggestion Pills for Outcome */}
+                  {(questionTopic === 'outcome' || (question && question.toLowerCase().includes('improve'))) && (
+                    <div className="mb-4">
+                      <p className="text-xs text-gray-500 mb-2 font-medium">Quick suggestions (or type any custom goal below):</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          "Fewer errors and increase sales",
+                          "Fewer errors",
+                          "Increase sales",
+                          "Speed of operations",
+                          "Customer response time",
+                          "Visibility across channels",
+                        ].map((pill) => (
+                          <button
+                            key={pill}
+                            type="button"
+                            onClick={() => setAnswer((prev) => (prev ? `${prev}, ${pill}` : pill))}
+                            className="text-xs bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 rounded-full px-3 py-1 transition-colors"
+                          >
+                            + {pill}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <form onSubmit={handleSubmitAnswer} className="relative">
                     <textarea
                       value={answer}

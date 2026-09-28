@@ -19,7 +19,7 @@ AUTHORITATIVE_PROFILE_TERMS = {
 INTERVIEW_AGENDA = [
     ("tools_workflow", "Which tools, apps, or manual steps do you currently use to run this workflow?"),
     ("workload", "About how often does this workflow happen, and how much team time does it take in a typical week?"),
-    ("outcome", "What would you most like to improve first: speed, fewer errors, customer response, or visibility?"),
+    ("outcome", "What would you most like to improve first (e.g. speed, fewer errors, customer response, visibility, increasing sales, or another priority)?"),
 ]
 
 
@@ -54,7 +54,7 @@ def classify_question_topic(question: str) -> str:
         return "tools_workflow"
     if terms & {"hour", "hours", "time", "often", "week", "volume"}:
         return "workload"
-    if terms & {"improve", "goal", "outcome", "success", "priority", "want"}:
+    if terms & {"improve", "goal", "outcome", "success", "priority", "want", "focus", "sales", "revenue", "target"}:
         return "outcome"
     return "adaptive"
 
@@ -101,6 +101,44 @@ class AnalystOutput(BaseModel):
     hypotheses: List[str] = Field(description="Structured hypotheses about business problems")
     confidence: str = Field(description="Confidence level: low, medium, or high")
     information_gap: InformationGap
+
+def _extract_analyst_output(content: str, company_profile: Dict[str, Any], answers: List[Dict[str, Any]]) -> Optional[AnalystOutput]:
+    # 1. Clean tool call markers like <|tool_call_start|> or <|...|>
+    cleaned = re.sub(r'<\|.*?\|>', '', content).strip()
+    
+    # 2. Try markdown json block
+    match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', cleaned)
+    if match:
+        try:
+            return AnalystOutput.model_validate_json(match.group(1).strip())
+        except Exception:
+            pass
+            
+    # 3. Try finding any outer JSON object { ... }
+    json_start = cleaned.find('{')
+    json_end = cleaned.rfind('}')
+    if json_start != -1 and json_end != -1 and json_end > json_start:
+        try:
+            return AnalystOutput.model_validate_json(cleaned[json_start:json_end+1])
+        except Exception:
+            pass
+            
+    # 4. Check for Python-like InformationGap(...) or pseudo tool call representation
+    exists_match = re.search(r'exists\s*=\s*(True|False|true|false)', cleaned)
+    reason_match = re.search(r'reason\s*=\s*[\'"](.*?)[\'"](?:\s*,\s*follow_up_question|\s*\))', cleaned, re.DOTALL)
+    question_match = re.search(r'follow_up_question\s*=\s*[\'"](.*?)[\'"](?:\s*\))', cleaned, re.DOTALL)
+    if exists_match and reason_match:
+        exists = exists_match.group(1).lower() == 'true'
+        reason = reason_match.group(1).replace("\\'", "'").replace('\\"', '"').strip()
+        q = question_match.group(1).replace("\\'", "'").replace('\\"', '"').strip() if (question_match and exists) else None
+        return AnalystOutput(
+            hypotheses=[_fallback_hypothesis(company_profile, answers)],
+            confidence="medium",
+            information_gap=InformationGap(exists=exists, reason=reason, follow_up_question=q)
+        )
+        
+    return None
+
 
 def create_analyst_chain(llm: BaseChatModel):
     parser = PydanticOutputParser(pydantic_object=AnalystOutput)
@@ -155,7 +193,6 @@ def create_analyst_chain(llm: BaseChatModel):
         Answers so far:
         {answers}""")
     ])
-    
     # Try structured output first, but provide format_instructions for fallback parser
     structured_llm = llm.with_structured_output(AnalystOutput)
     
@@ -163,20 +200,33 @@ def create_analyst_chain(llm: BaseChatModel):
         try:
             return (prompt | structured_llm).invoke(inputs)
         except Exception as e:
-            logger.warning("Structured output failed, trying string parser fallback", exc_info=True)
+            logger.info("Structured output failed, trying string parser fallback: %s", e)
             # Fallback for models that fail structured output
             raw_result = (prompt | llm).invoke(inputs)
+            content = getattr(raw_result, "content", str(raw_result))
+            
+            # Try standard parsing
             try:
-                # Try standard parsing
-                return parser.parse(raw_result.content)
-            except Exception as e:
-                logger.warning("String parser fallback failed, trying regex fallback", exc_info=True)
-                # Regex fallback to extract JSON block
-                match = re.search(r'```json\n(.*?)\n```', raw_result.content, re.DOTALL)
-                if match:
-                    return AnalystOutput.model_validate_json(match.group(1))
-                logger.error("All analyst output parsing strategies failed")
-                raise
+                clean_content = re.sub(r'<\|.*?\|>', '', content).strip()
+                return parser.parse(clean_content)
+            except Exception:
+                pass
+                
+            # Try extracting heuristics
+            extracted = _extract_analyst_output(
+                content, 
+                inputs.get("company_profile", {}), 
+                inputs.get("answers", [])
+            )
+            if extracted:
+                return extracted
+                
+            logger.warning("All analyst output parsing strategies failed, using fallback AnalystOutput")
+            return AnalystOutput(
+                hypotheses=[_fallback_hypothesis(inputs.get("company_profile", {}), inputs.get("answers", []))],
+                confidence="low",
+                information_gap=InformationGap(exists=False, reason="Parsed via fallback", follow_up_question=None)
+            )
                 
     return run_chain
 
@@ -336,13 +386,26 @@ def run_diagnosis_chain(llm: BaseChatModel, company_profile: Dict[str, Any], ans
         res = (prompt | structured_llm).invoke(inputs)
         return res.pain_points
     except Exception as e:
-        logger.warning("run_diagnosis_chain structured output failed, trying string parser fallback", exc_info=True)
+        logger.info("run_diagnosis_chain structured output failed, trying string parser fallback: %s", e)
         try:
             raw = (prompt | llm).invoke(inputs)
-            res = parser.parse(raw.content)
-            return res.pain_points
+            clean_content = re.sub(r'<\|.*?\|>', '', getattr(raw, "content", str(raw))).strip()
+            try:
+                res = parser.parse(clean_content)
+                return res.pain_points
+            except Exception:
+                pass
+            match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', clean_content)
+            if match:
+                res = DiagnosisSynthesis.model_validate_json(match.group(1).strip())
+                return res.pain_points
+            j_start = clean_content.find('{')
+            j_end = clean_content.rfind('}')
+            if j_start != -1 and j_end != -1 and j_end > j_start:
+                res = DiagnosisSynthesis.model_validate_json(clean_content[j_start:j_end+1])
+                return res.pain_points
         except Exception as e:
-            logger.warning("run_diagnosis_chain all LLM strategies failed, using deterministic fallback", exc_info=True)
+            logger.info("run_diagnosis_chain using deterministic fallback: %s", e)
             evidence = _answer_texts(answers) or [str(item) for item in (company_profile.get("main_operational_problems") or [])]
             first_evidence = evidence[0] if evidence else "the current workflow"
             return [DiagnosticPoint(
