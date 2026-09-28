@@ -2,7 +2,7 @@
     "government_support": [
         {
             "support_id": "smecorp_sfsme_2_0",
-            "programme": "SFSME 2.0",
+            "programme": "SFSME 2.0 (Soft Financing Scheme for SMEs)",
             "support_type": "financing",
             "source": "SME Corp Malaysia",
             "source_url": "https://www.smecorp.gov.my/",
@@ -23,6 +23,29 @@
             ],
             "eligibility_note": "Potentially eligible — eligibility is not guaranteed and must be confirmed against the current programme requirements.",
             "system_use": "Use as a potential financing/support option when the diagnosis indicates digitalisation, automation, innovation or technology adoption needs."
+        },
+        {
+            "support_id": "bsn_msme_digital_grant_madani",
+            "programme": "MSME Digital Grant MADANI",
+            "support_type": "matching_grant",
+            "source": "Bank Simpanan Nasional (BSN)",
+            "source_url": "https://www.bsn.com.my/",
+            "last_verified": "2026-09-15",
+            "conditions": [
+                "Registered under SSM with required local equity structure and active operation period.",
+                "Must engage official, approved technology service providers for digital solution procurement."
+            ],
+            "coverage": "Matching grant assistance aimed at lowering the cost for micro, small, and medium enterprises adopting digital applications, cloud software, or e-invoicing.",
+            "maximum_amount": "RM5,000",
+            "minimum_amount": null,
+            "eligible_categories": [
+                "digitalisation",
+                "software_adoption",
+                "e_invoicing",
+                "cybersecurity"
+            ],
+            "eligibility_note": "Potentially eligible — subject to verification of company profile and scheme allocation criteria.",
+            "system_use": "Recommend when an SME requires co-funding support for digital tool deployment, software migration, or e-invoicing compliance."
         },
         {
             "support_id": "hrd_corp_claimable_courses",
@@ -71,6 +94,51 @@
             ],
             "eligibility_note": "Potentially eligible — eligibility and claim amount must be confirmed with HRD Corp.",
             "system_use": "Use when the recommended transformation requires employee training or capability development."
+        },
+        {
+            "support_id": "cradle_cip_sprint",
+            "programme": "CIP Sprint",
+            "support_type": "conditional_grant",
+            "source": "Cradle Fund Sdn. Bhd.",
+            "source_url": "https://www.cradle.com.my/",
+            "last_verified": "2026-09-15",
+            "conditions": [
+                "Targeted at high-potential tech start-ups and innovative early-stage enterprises.",
+                "Must have a developed prototype or tech product ready for market commercialisation."
+            ],
+            "coverage": "Conditional grant funding designed to assist tech-based start-ups in commercialising innovative products and scaling market entry.",
+            "maximum_amount": "RM600,000",
+            "minimum_amount": null,
+            "eligible_categories": [
+                "startup",
+                "innovation",
+                "commercialisation",
+                "technology_development"
+            ],
+            "eligibility_note": "Potentially eligible — restricted strictly to early-stage technology-driven businesses.",
+            "system_use": "Recommend when diagnosing a technology startup or innovative venture needing non-dilutive funds for product launch and scale."
+        },
+        {
+            "support_id": "sjpp_government_guarantee",
+            "programme": "SJPP Financing Guarantee Schemes",
+            "support_type": "loan_guarantee",
+            "source": "Syarikat Jaminan Pembiayaan Perniagaan (SJPP)",
+            "source_url": "https://www.sjpp.com.my/",
+            "last_verified": "2026-09-15",
+            "conditions": [
+                "Applicable for viable SMEs applying for commercial bank financing but lacking traditional collateral.",
+                "Subject to evaluation and credit approval by participating financial institutions."
+            ],
+            "coverage": "Government guarantees on commercial loans to facilitate debt financing access for growing businesses.",
+            "maximum_amount": "Subject to scheme limits",
+            "minimum_amount": null,
+            "eligible_categories": [
+                "financing",
+                "cash_flow",
+                "expansion_capital"
+            ],
+            "eligibility_note": "Potentially eligible — subject to bank credit approval and active scheme conditions.",
+            "system_use": "Use when an SME has sound commercial potential and viability but faces hurdles securing traditional banking lines due to collateral limitations."
         }
     ],
     "rules": {

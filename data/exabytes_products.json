@@ -26,10 +26,18 @@
             "Business needs or wants an online presence"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "innovation",
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business does not have a professional domain name"
+        ]
     },
     {
         "product_id": "ai_web_hosting",
@@ -65,10 +73,20 @@
             "Business needs a website or web hosting"
         ],
         "pricing": "From RM21.99/month for WP 17 AI Beginner; other plans vary",
-        "grant_categories": [],
+        "grant_categories": [
+            "innovation",
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/ai-hosting",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "does not have a website",
+            "lacks technical expertise to build a website",
+            "website is difficult to manage"
+        ]
     },
     {
         "product_id": "email_hosting",
@@ -98,10 +116,18 @@
             "Business needs a registered domain"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "innovation",
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "business uses non-professional email addresses"
+        ]
     },
     {
         "product_id": "vps_server",
@@ -131,10 +157,18 @@
             "Business has a workload requiring server infrastructure"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption",
+            "automation"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "business needs more computing resources than shared hosting"
+        ]
     },
     {
         "product_id": "ecommerce_design",
@@ -161,10 +195,19 @@
             "Business intends to sell products or services online"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "wants to start selling online",
+            "lacks an ecommerce website",
+            "manual online sales tracking"
+        ]
     },
     {
         "product_id": "microsoft_365",
@@ -195,10 +238,19 @@
             "Business needs Microsoft 365 user accounts"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "fragmented productivity tools",
+            "need cloud-based document access",
+            "manual remote collaboration"
+        ]
     },
     {
         "product_id": "google_workspace",
@@ -233,10 +285,20 @@
             "Business needs user accounts and business email"
         ],
         "pricing": "From RM12.99/user/month for Business Starter; RM29.99/user/month for Business Standard; RM97.99/user/month for Business Plus",
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/google-workspace",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "fragmented collaboration tools",
+            "need shared cloud documents",
+            "need professional email",
+            "manual remote collaboration"
+        ]
     },
     {
         "product_id": "lark",
@@ -270,10 +332,20 @@
             "Business has employees or teams requiring collaboration"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "team communication is fragmented",
+            "switch between multiple applications",
+            "rely on manual workflows",
+            "approvals are inefficient"
+        ]
     },
     {
         "product_id": "digital_marketing",
@@ -305,10 +377,17 @@
             "Business has a digital presence or marketing objective"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business has weak online visibility"
+        ]
     },
     {
         "product_id": "bulk_sms",
@@ -336,10 +415,18 @@
             "Business has customer contacts and a legitimate messaging use case"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "customer outreach is inefficient",
+            "manual promotional messaging"
+        ]
     },
     {
         "product_id": "email_marketing",
@@ -367,10 +454,19 @@
             "Business has an appropriate customer mailing list"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "innovation",
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "struggles to maintain customer engagement",
+            "customer outreach is inconsistent"
+        ]
     },
     {
         "product_id": "freshdesk",
@@ -400,10 +496,19 @@
             "Business receives recurring customer enquiries or support requests"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "customer enquiries are difficult to manage",
+            "customer support is fragmented",
+            "manual issue tracking"
+        ]
     },
     {
         "product_id": "freshchat",
@@ -431,10 +536,19 @@
             "Business has digital customer touchpoints"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "website visitors cannot easily contact",
+            "customer conversations are fragmented",
+            "manual digital customer engagement"
+        ]
     },
     {
         "product_id": "freshsales",
@@ -465,10 +579,21 @@
             "Business has a sales or customer acquisition process"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "customer information stored in spreadsheets",
+            "manual customer follow-up",
+            "no centralized customer database",
+            "manual reporting",
+            "leads are difficult to track"
+        ]
     },
     {
         "product_id": "freshservice",
@@ -498,10 +623,19 @@
             "Business has internal IT operations or recurring IT support requirements"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "it incidents are difficult to track",
+            "it assets are poorly managed",
+            "internal it support is inefficient"
+        ]
     },
     {
         "product_id": "seo_tool",
@@ -529,10 +663,17 @@
             "Business has a website or online presence"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "business has poor search visibility"
+        ]
     },
     {
         "product_id": "heylink",
@@ -561,10 +702,17 @@
             "Business has multiple online destinations to organise"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "digitalisation",
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "business has links scattered across different platforms"
+        ]
     },
     {
         "product_id": "aws",
@@ -594,10 +742,16 @@
             "Business has a workload suitable for cloud deployment"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "software_adoption",
+            "automation"
+        ],
         "source_url": "https://www.exabytes.my/enterprise/cloud",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business needs scalable cloud infrastructure"
+        ]
     },
     {
         "product_id": "ecloud",
@@ -627,10 +781,16 @@
             "Business has workloads or infrastructure suitable for cloud migration"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "software_adoption",
+            "automation"
+        ],
         "source_url": "https://www.exabytes.my/enterprise/cloud",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business needs cloud migration"
+        ]
     },
     {
         "product_id": "exabytes_vision_cloud",
@@ -660,10 +820,16 @@
             "Business has critical workloads suitable for enterprise cloud"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "software_adoption",
+            "automation"
+        ],
         "source_url": "https://www.exabytes.my/enterprise/cloud",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business needs to run critical workloads"
+        ]
     },
     {
         "product_id": "ecloudapp",
@@ -695,10 +861,17 @@
             "Business has a business process suitable for cloud application deployment"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "software_adoption",
+            "automation"
+        ],
         "source_url": "https://www.exabytes.my/enterprise/cloudapp",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business needs cloud-based business applications",
+            "inaccessible applications across devices"
+        ]
     },
     {
         "product_id": "exabytes_commerce",
@@ -725,10 +898,15 @@
             "Business operates or intends to operate retail or ecommerce channels"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "software_adoption"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "retail business needs online and in-store commerce"
+        ]
     },
     {
         "product_id": "e_secure",
@@ -756,10 +934,16 @@
             "Business has infrastructure or workloads requiring security protection"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "cybersecurity"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "medium"
+        "confidence": "medium",
+        "evidence_signals": [
+            "business needs stronger infrastructure security"
+        ]
     },
     {
         "product_id": "acronis_cyberprotect",
@@ -786,10 +970,17 @@
             "Business has systems or data requiring backup and protection"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "cybersecurity"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business needs data backup",
+            "manual data protection"
+        ]
     },
     {
         "product_id": "ssl_certificate",
@@ -817,10 +1008,16 @@
             "Business has a domain or website"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "cybersecurity"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "website needs encrypted connections"
+        ]
     },
     {
         "product_id": "email_spam_filtering",
@@ -848,10 +1045,17 @@
             "Business uses email"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "innovation",
+            "technology_adoption",
+            "cybersecurity"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "business receives spam email"
+        ]
     },
     {
         "product_id": "sucuri_website_security",
@@ -879,10 +1083,16 @@
             "Business operates a website"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "cybersecurity"
+        ],
         "source_url": "https://www.exabytes.my/",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "website is exposed to cyber threats"
+        ]
     },
     {
         "product_id": "cloudflare",
@@ -914,9 +1124,16 @@
             "Business operates a website or web application"
         ],
         "pricing": null,
-        "grant_categories": [],
+        "grant_categories": [
+            "technology_adoption",
+            "cybersecurity",
+            "automation"
+        ],
         "source_url": "https://www.exabytes.my/web-security/cloudflare-web-performance-booster",
         "source_date": "2026-09-15",
-        "confidence": "high"
+        "confidence": "high",
+        "evidence_signals": [
+            "website is slow"
+        ]
     }
 ]

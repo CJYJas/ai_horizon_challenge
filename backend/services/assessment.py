@@ -90,6 +90,25 @@ def generate_diagnosis(assessment: SMEAssessment, llm: BaseChatModel) -> Dict[st
     profile_model = CompanyProfile(**assessment.company_profile)
     matches = run_solution_matcher(pain_points, profile_model)
     
+    # Phrase explanation reasons using LLM based on recorded links
+    for rec in matches.get("recommendations", []):
+        if rec.explanation:
+            prompt = (
+                "You are an AI assistant. Given the following deterministic matching data, write ONE plain sentence explaining why the solution (and programme, if any) was recommended. Focus on linking the business problem/evidence to the solution/programme. Do NOT add new facts or links.\n\n"
+                f"Evidence: {', '.join(rec.explanation.evidence)}\n"
+                f"Problem: {rec.explanation.problem}\n"
+                f"Solution: {rec.explanation.product_id}\n"
+                f"Programme: {rec.explanation.programme_name or 'None'}"
+            )
+            try:
+                result = llm.invoke(prompt)
+                reason_text = result.content.strip()
+                rec.explanation.reason = reason_text
+                # Also update the legacy reason for backward compatibility
+                rec.reason = reason_text
+            except Exception:
+                pass
+                
     # Return structured dict of fields to update
     return {
         "pain_points": [p.model_dump() for p in pain_points],

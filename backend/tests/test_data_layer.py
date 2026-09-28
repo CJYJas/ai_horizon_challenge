@@ -39,6 +39,7 @@ def test_create_and_load_assessment(session: Session):
     answer = Answer(
         question_id="q1",
         question_text="How do you track inventory?",
+        question_topic="inventory_management",
         answer="spreadsheet",
         asked_reason="To understand manual labor"
     )

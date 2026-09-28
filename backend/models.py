@@ -52,17 +52,34 @@ class ImpactSimulation(BaseModel):
     recovered_hours_per_year: float
     recovered_value_per_year: float
 
+class RecommendationExplanation(BaseModel):
+    evidence: List[str]
+    problem: str
+    product_id: str
+    programme_name: Optional[str] = None
+    reason: str
+
 class Recommendation(BaseModel):
     product_id: str
     linked_pain_point: str
     reason: str
     expected_outcome: str
     transformation_area: Optional[str] = None
+    explanation: Optional[RecommendationExplanation] = None
 
 class GovernmentSupportMatch(BaseModel):
     support_id: str
     linked_transformation: str
     eligibility_status: str
+    source_url: Optional[str] = None
+    programme: Optional[str] = None
+    agency: Optional[str] = None
+    coverage: Optional[str] = None
+    maximum_amount: Optional[str] = None
+    conditions: Optional[List[str]] = None
+    matched_conditions: Optional[List[str]] = Field(default_factory=list)
+    pending_conditions: Optional[List[str]] = Field(default_factory=list)
+    status: Optional[str] = None
 
 
 # --- SQLModel for SQLite Database Persistence ---
@@ -99,6 +116,7 @@ class ExabytesProduct(BaseModel):
     problems_solved: List[str]
     benefits: List[str]
     prerequisites: List[str]
+    evidence_signals: List[str] = Field(default_factory=list)
     pricing: Optional[str] = None
     grant_categories: List[str]
     source_url: str

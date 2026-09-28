@@ -1,11 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { FileText, Loader2, ArrowRight, Download, CheckCircle, BrainCircuit, Activity, AlertTriangle, TrendingUp, DollarSign, Package, Building2, Map } from 'lucide-react';
+import { FileText, Loader2, BrainCircuit, Activity, AlertTriangle, TrendingUp, Package, Building2, Map } from 'lucide-react';
 import { api } from '../api/client';
-import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { MaturityChart } from '../components/MaturityChart';
+import { RecommendationCard } from '../components/RecommendationCard';
+
+const MATURITY_LABELS = {
+  digital_presence: 'Digital Presence',
+  productivity: 'Productivity',
+  customer_management: 'Customer Management',
+  data_security: 'Data & Security',
+  ai_readiness: 'AI Readiness',
+};
 
 export function Report() {
   const { id } = useParams();
@@ -41,10 +49,6 @@ export function Report() {
     loadReport();
   }, [id]);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const formatCurrency = (val) => new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' }).format(val);
   const returnStep = searchParams.get('return');
   const fromSales = searchParams.get('from') === 'sales';
@@ -52,7 +56,7 @@ export function Report() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 no-print">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-6 max-w-md text-center">
           <div className="relative">
             <div className="absolute inset-0 bg-primary-100 rounded-full animate-ping opacity-75"></div>
@@ -72,7 +76,7 @@ export function Report() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 no-print px-4 text-center gap-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center gap-4">
         <p className="text-red-600 max-w-md">{error || 'Failed to generate report.'}</p>
         <Button onClick={() => navigate(`/diagnosis/${id}`)}>Return to Diagnosis</Button>
       </div>
@@ -92,253 +96,229 @@ export function Report() {
     report.pain_point_explanations?.length > 0
       ? report.pain_point_explanations
       : top_pain_points.map((pt) => ({
-          problem: pt.problem,
-          root_cause_explanation: pt.root_cause,
-          why_it_matters: pt.business_impact,
-        }));
+        problem: pt.problem,
+        root_cause_explanation: pt.root_cause,
+        why_it_matters: pt.business_impact,
+      }));
 
   const roadmapEntries =
     report.roadmap_narrative && Object.values(report.roadmap_narrative).some((v) => v?.trim())
       ? Object.entries(report.roadmap_narrative)
       : recommendations.map((rec, idx) => [
-          `phase_${idx + 1}`,
-          `${rec.product_id.toUpperCase()}: ${rec.expected_outcome}`,
-        ]);
+        `phase_${idx + 1}`,
+        `${rec.product_id.toUpperCase()}: ${rec.expected_outcome}`,
+      ]);
   const rationales = report.product_rationales || [];
 
+  let biggestGap = 'Digital Presence';
+  let minScore = Infinity;
+  if (maturity_scores) {
+    for (const [key, score] of Object.entries(maturity_scores)) {
+      if (score < minScore) {
+        minScore = score;
+        biggestGap = MATURITY_LABELS[key] || key;
+      }
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto space-y-8">
-        
-        {/* Print Controls */}
-        <div className="flex justify-between items-center mb-8 no-print">
+    <div className="min-h-screen bg-gray-50">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-gray-200">
+        <div className="max-w-screen-2xl mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate(returnPath)}>
             {fromSales ? 'Back to dashboard' : 'Back to your journey'}
           </Button>
-          <Button variant="primary" onClick={handlePrint}>
-            <Download className="w-4 h-4 mr-2" />
-            Export PDF
-          </Button>
+          <p className="text-sm text-gray-500 hidden sm:block">Digital Transformation Report</p>
         </div>
+      </div>
 
-        {/* Report Document */}
-        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
-          
-          {/* Header */}
-          <div className="bg-primary-900 px-8 py-12 text-white page-break-inside-avoid">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                <span className="text-primary-900 font-bold text-lg">E</span>
+      <div className="max-w-screen-2xl mx-auto px-6 lg:px-10 py-8 lg:py-10 space-y-8">
+        <header className="bg-primary-900 text-white rounded-3xl px-8 lg:px-12 py-10 lg:py-12 flex flex-col lg:flex-row justify-between lg:items-center gap-8 shadow-md">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                <span className="text-primary-900 font-black text-xl">E</span>
               </div>
-              <span className="text-xl font-semibold tracking-tight">Exabytes</span>
+              <span className="text-2xl font-semibold tracking-tight text-white/90">Exabytes</span>
             </div>
-            <h1 className="text-4xl font-bold mb-4">Digital Transformation Strategy</h1>
-            <p className="text-primary-200 text-lg mb-8">Executive Summary & Implementation Roadmap</p>
-            
-            {/* 2. Company Overview */}
-            <div className="bg-primary-800/50 p-6 rounded-xl border border-primary-700/50">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-primary-300 mb-4">Company Overview</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-primary-300 text-sm">Industry</p>
-                  <p className="font-semibold">{company_profile.industry}</p>
-                </div>
-                <div>
-                  <p className="text-primary-300 text-sm">Employees</p>
-                  <p className="font-semibold">{company_profile.employee_count}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-primary-300 text-sm">Current Tools</p>
-                  <p className="font-semibold capitalize">{company_profile.current_digital_tools.join(', ')}</p>
-                </div>
-              </div>
+            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">Digital Transformation Strategy</h1>
+            <p className="text-primary-200 text-lg">Executive summary, maturity diagnosis, and implementation roadmap</p>
+          </div>
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[280px]">
+            <div className="bg-primary-800/40 backdrop-blur px-5 py-3.5 rounded-xl border border-primary-700/50 flex justify-between items-center gap-4">
+              <span className="text-primary-300 text-sm font-medium">Industry</span>
+              <span className="font-semibold text-white text-right">{company_profile.industry}</span>
+            </div>
+            <div className="bg-primary-800/40 backdrop-blur px-5 py-3.5 rounded-xl border border-primary-700/50 flex justify-between items-center gap-4">
+              <span className="text-primary-300 text-sm font-medium">Employees</span>
+              <span className="font-semibold text-white text-right">{company_profile.employee_count}</span>
+            </div>
+            <div className="bg-primary-800/40 backdrop-blur px-5 py-3.5 rounded-xl border border-primary-700/50 flex flex-col gap-2">
+              <span className="text-primary-300 text-sm font-medium">Current Tools</span>
+              <span className="font-semibold text-white capitalize leading-snug">{company_profile.current_digital_tools.join(', ')}</span>
             </div>
           </div>
+        </header>
 
-          <div className="p-8 space-y-12">
-            
-            {/* 3. Executive Summary */}
-            <section className="page-break-inside-avoid">
-              <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                <FileText className="w-6 h-6 text-primary-600" /> Executive Summary
-              </h2>
-              <p className="text-gray-700 leading-relaxed text-lg">
-                {executiveSummary}
+        <div className="grid xl:grid-cols-12 gap-8">
+          <section className="xl:col-span-7 bg-white rounded-2xl border border-gray-200 p-8 lg:p-10">
+            <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center gap-2">
+              <FileText className="w-6 h-6 text-primary-600" /> Executive Summary
+            </h2>
+            <p className="text-gray-700 leading-relaxed text-lg">{executiveSummary}</p>
+          </section>
+
+          <section className="xl:col-span-5 bg-white rounded-2xl border border-gray-200 p-8 lg:p-10">
+            <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center gap-2">
+              <Activity className="w-6 h-6 text-primary-600" /> Digital Maturity
+            </h2>
+            <div className="bg-amber-50 rounded-xl border border-amber-100 p-5 mb-6">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Diagnostic Insight</p>
+              <p className="text-gray-500 mb-2">Your biggest digital gap is</p>
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <span className="text-xl font-bold text-amber-600">{biggestGap}</span>
+              </div>
+              <p className="text-gray-600 text-sm">
+                {diagnosis_data.maturity_gap_explanation || 'Addressing this area will yield the highest immediate ROI for your transformation journey.'}
               </p>
-            </section>
-
-            {/* 4. Digital Maturity */}
-            <section className="page-break-inside-avoid">
-              <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                <Activity className="w-6 h-6 text-primary-600" /> Digital Maturity
-              </h2>
-              
-              {/* Diagnostic Insight Card */}
-              {(() => {
-                const labels = {
-                  digital_presence: 'Digital Presence',
-                  productivity: 'Productivity',
-                  customer_management: 'Customer Management',
-                  data_security: 'Data & Security',
-                  ai_readiness: 'AI Readiness',
-                };
-                let minScore = Infinity;
-                let biggestGap = 'Digital Presence';
-                if (maturity_scores) {
-                  for (const [key, score] of Object.entries(maturity_scores)) {
-                    if (score < minScore) {
-                      minScore = score;
-                      biggestGap = labels[key] || key;
-                    }
-                  }
-                }
-                return (
-                  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Diagnostic Insight</p>
-                    <p className="text-gray-500 text-lg mb-2">Your biggest digital gap is</p>
-                    <div className="flex items-center gap-2 mb-4">
-                      <AlertTriangle className="w-6 h-6 text-amber-500" />
-                      <span className="text-2xl font-bold text-amber-500">{biggestGap}</span>
-                    </div>
-                    <p className="text-gray-500">
-                      {diagnosis_data.maturity_gap_explanation || "Addressing this area will yield the highest immediate ROI for your transformation journey."}
-                    </p>
-                  </div>
-                );
-              })()}
-
-              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6 text-center">Digital Maturity Index</p>
-                <MaturityChart scores={maturity_scores} />
-              </div>
-            </section>
-
-            {/* 5, 6, 7. Key Pain Points, Root Causes, Business Impact */}
-            <section className="page-break-before">
-              <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                <AlertTriangle className="w-6 h-6 text-primary-600" /> Identified Operational Bottlenecks
-              </h2>
-              <div className="grid gap-6">
-                {painExplanations.map((exp, idx) => (
-                  <div key={idx} className="bg-gray-50 rounded-xl p-6 border border-gray-100 page-break-inside-avoid">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">{exp.problem}</h3>
-                      <Badge variant="red">High Priority</Badge>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4 mt-6">
-                      <div className="bg-white p-4 rounded border border-gray-200">
-                        <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Root Cause</p>
-                        <p className="text-gray-800">{exp.root_cause_explanation}</p>
-                      </div>
-                      <div className="bg-red-50 p-4 rounded border border-red-100">
-                        <p className="text-sm font-semibold text-red-500 uppercase tracking-wider mb-1">Business Impact</p>
-                        <p className="text-red-900 font-medium">{exp.why_it_matters}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* 8. Impact Simulation */}
-            {impact_simulation && (
-              <section className="page-break-inside-avoid">
-                <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                  <TrendingUp className="w-6 h-6 text-primary-600" /> ROI & Impact Simulation
-                </h2>
-                <p className="text-sm text-gray-500 italic mb-4">* Estimates based on user assumptions. Not guaranteed savings.</p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-red-50 p-6 rounded-xl border border-red-100">
-                    <p className="text-sm text-red-800 font-medium mb-1">Estimated Annual Opportunity Cost</p>
-                    <p className="text-3xl font-bold text-red-900">{formatCurrency(impact_simulation.annual_opportunity_cost)}</p>
-                  </div>
-                  <div className="bg-green-50 p-6 rounded-xl border border-green-100">
-                    <p className="text-sm text-green-800 font-medium mb-1">Target Recovered Value / Year</p>
-                    <p className="text-3xl font-bold text-green-900">{formatCurrency(impact_simulation.recovered_value_per_year)}</p>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* 9 & 12. Transformation Roadmap & Priority Areas */}
-            <section className="page-break-before">
-              <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                <Map className="w-6 h-6 text-primary-600" /> Strategic Roadmap
-              </h2>
-              <div className="space-y-6">
-                {roadmapEntries.map(([phase, desc], idx) => (
-                  <div key={idx} className="flex gap-4 page-break-inside-avoid">
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold border-2 border-white shadow-sm z-10">
-                        {idx + 1}
-                      </div>
-                      {idx !== roadmapEntries.length - 1 && (
-                        <div className="w-0.5 h-full bg-primary-100 mt-2"></div>
-                      )}
-                    </div>
-                    <div className="pb-6 pt-2">
-                      <h3 className="text-lg font-bold text-gray-900 capitalize mb-2">{phase.replace('_', ' ')}</h3>
-                      <p className="text-gray-700 leading-relaxed">{desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* 10. Recommended Solutions */}
-            <section className="page-break-inside-avoid">
-              <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                <Package className="w-6 h-6 text-primary-600" /> Recommended Exabytes Solutions
-              </h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                {recommendations.map((rec, idx) => (
-                  <div key={idx} className="border border-gray-200 rounded-xl p-6 bg-white">
-                    {(() => {
-                      const rationale = rationales.find((item) => item.product_id === rec.product_id);
-                      return <>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 uppercase">{rec.product_id}</h3>
-                    <p className="text-sm font-medium text-primary-600 mb-3">{rec.expected_outcome}</p>
-                    <p className="text-sm text-gray-600 italic">"{rec.reason}"</p>
-                    {rationale && <div className="mt-4 space-y-3 text-sm"><div><p className="font-semibold text-gray-800">Why this fits your business</p><p className="text-gray-700 mt-1">{rationale.why_suitable}</p></div><div><p className="font-semibold text-gray-800">How to begin</p><p className="text-gray-700 mt-1">{rationale.implementation_suggestion}</p></div></div>}
-                      </>;
-                    })()}
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* 11. Government Support */}
-            {government_support && government_support.length > 0 && (
-              <section className="page-break-inside-avoid">
-                <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-2 mb-6 flex items-center gap-2">
-                  <Building2 className="w-6 h-6 text-primary-600" /> Government Support Opportunities
-                </h2>
-                <div className="grid gap-4">
-                  {government_support.map((gov, idx) => (
-                    <div key={idx} className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-900 uppercase">{gov.support_id.replace('_', ' ')}</h3>
-                        <Badge variant="amber">Potentially eligible</Badge>
-                      </div>
-                      <p className="text-sm text-gray-700 mb-3">Matching Transformation: <span className="capitalize font-medium">{gov.linked_transformation}</span></p>
-                      <p className="text-xs text-amber-800 bg-amber-100/50 p-3 rounded">
-                        <strong>Important:</strong> Potentially eligible — eligibility must be confirmed directly with the official agency. This is an automated preliminary match.
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* 12. Thank You / Next Steps */}
-            <section className="page-break-inside-avoid mt-12 bg-primary-50 p-8 rounded-2xl text-center border border-primary-100">
-              <h2 className="text-2xl font-bold text-primary-900 mb-4">Thank you for your time!</h2>
-              <p className="text-lg text-primary-800">Our team will contact you shortly to discuss your personalized digital transformation journey.</p>
-            </section>
-
-          </div>
+            </div>
+            <MaturityChart scores={maturity_scores} />
+          </section>
         </div>
 
+        <section className="bg-white rounded-2xl border border-gray-200 p-8 lg:p-10">
+          <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-8 flex items-center gap-2">
+            <AlertTriangle className="w-6 h-6 text-primary-600" /> Identified Operational Bottlenecks
+          </h2>
+          <div className="flex flex-col gap-6">
+            {painExplanations.map((exp, idx) => (
+              <div key={idx} className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 flex flex-col lg:flex-row gap-6 items-start shadow-sm hover:shadow-md transition-all">
+                <div className="lg:w-1/3 shrink-0">
+                  <Badge variant="red" className="mb-4 inline-flex">High Priority</Badge>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{exp.problem}</h3>
+                </div>
+                <div className="lg:w-2/3 grid sm:grid-cols-2 gap-4 lg:gap-6 w-full">
+                  <div className="bg-gray-50/80 p-5 md:p-6 rounded-xl border border-gray-100">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Root Cause</p>
+                    <p className="text-gray-800 text-sm leading-relaxed">{exp.root_cause_explanation}</p>
+                  </div>
+                  <div className="bg-red-50/60 p-5 md:p-6 rounded-xl border border-red-100/60">
+                    <p className="text-xs font-semibold text-red-500 uppercase tracking-widest mb-3">Business Impact</p>
+                    <p className="text-red-900 font-medium text-sm leading-relaxed">{exp.why_it_matters}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {impact_simulation && (
+          <section className="bg-white rounded-2xl border border-gray-200 p-8 lg:p-10">
+            <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-primary-600" /> ROI & Impact Simulation
+            </h2>
+            <p className="text-sm text-gray-500 italic mb-6">* Estimates based on user assumptions. Not guaranteed savings.</p>
+            <div className="flex flex-col md:flex-row rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+              <div className="flex-1 bg-gradient-to-br from-red-50 to-white p-8 border-b md:border-b-0 md:border-r border-gray-200">
+                <p className="text-xs text-red-800 font-bold mb-3 uppercase tracking-widest">Estimated Annual Opportunity Cost</p>
+                <p className="text-4xl lg:text-5xl font-bold text-red-600">{formatCurrency(impact_simulation.annual_opportunity_cost)}</p>
+              </div>
+              <div className="flex-1 bg-gradient-to-br from-green-50 to-white p-8">
+                <p className="text-xs text-green-800 font-bold mb-3 uppercase tracking-widest">Target Recovered Value / Year</p>
+                <p className="text-4xl lg:text-5xl font-bold text-green-600">{formatCurrency(impact_simulation.recovered_value_per_year)}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section className="bg-white rounded-2xl border border-gray-200 p-8 lg:p-10">
+          <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-8 flex items-center gap-2">
+            <Map className="w-6 h-6 text-primary-600" /> Strategic Roadmap
+          </h2>
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {roadmapEntries.map(([phase, desc], idx) => (
+              <div key={idx} className="rounded-2xl border border-primary-100 bg-primary-50/40 p-6">
+                <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold mb-4">
+                  {idx + 1}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 capitalize mb-2">{phase.replace('_', ' ')}</h3>
+                <p className="text-gray-700 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-200 p-8 lg:p-10">
+          <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-8 flex items-center gap-2">
+            <Package className="w-6 h-6 text-primary-600" /> Recommended Exabytes Solutions
+          </h2>
+          <div className="flex flex-col gap-8">
+            {recommendations.map((rec, idx) => (
+              <RecommendationCard
+                key={idx}
+                recommendation={rec}
+                rationale={rationales.find((item) => item.product_id === rec.product_id)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {government_support && government_support.length > 0 && (
+          <section className="bg-white rounded-2xl border border-gray-200 p-8 lg:p-10">
+            <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-8 flex items-center gap-2">
+              <Building2 className="w-6 h-6 text-primary-600" /> Government Support Opportunities
+            </h2>
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {government_support.map((gov, idx) => (
+                <div key={idx} className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col">
+                  <div className="flex justify-between items-start gap-3 mb-3">
+                    <h3 className="font-bold text-gray-900 uppercase">{gov.support_id.replace('_', ' ')}</h3>
+                    <Badge variant="amber">Potentially eligible</Badge>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-3">Matching Transformation: <span className="capitalize font-medium">{gov.linked_transformation}</span></p>
+                  <p className="text-xs text-amber-800 bg-amber-100/50 p-3 rounded-xl mb-4">
+                    <strong>Important:</strong> Potentially eligible — eligibility must be confirmed directly with the official agency. This is an automated preliminary match.
+                  </p>
+                  {(gov.matched_conditions?.length > 0 || gov.pending_conditions?.length > 0) && (
+                    <div className="mb-4">
+                      <span className="font-medium text-gray-700 block mb-1 text-sm">Conditions summary:</span>
+                      <ul className="space-y-1">
+                        {gov.matched_conditions?.map((c, i) => (
+                          <li key={`m-${i}`} className="text-xs text-green-700 flex items-start gap-1">
+                            <span className="font-bold mt-0.5">✓</span> <span>{c}</span>
+                          </li>
+                        ))}
+                        {gov.pending_conditions?.map((c, i) => (
+                          <li key={`p-${i}`} className="text-xs text-amber-700 flex items-start gap-1">
+                            <span className="font-bold mt-0.5">?</span> <span>(To be confirmed) {c}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {gov.source_url && (
+                    <div className="mt-auto">
+                      <a
+                        href={gov.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+                      >
+                        View Official Programme
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="bg-primary-50 p-10 rounded-3xl text-center border border-primary-100">
+          <h2 className="text-2xl font-bold text-primary-900 mb-3">Thank you for your time!</h2>
+          <p className="text-lg text-primary-800 max-w-3xl mx-auto">Our team will contact you shortly to discuss your personalized digital transformation journey.</p>
+        </section>
       </div>
     </div>
   );

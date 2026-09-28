@@ -125,6 +125,18 @@ export function Roadmap() {
                     <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 text-amber-800 text-xs">
                       <strong>Important:</strong> Eligibility must be confirmed directly with the official agency. This is an automated preliminary match.
                     </div>
+                    {gov.source_url && (
+                      <div className="pt-2">
+                        <a
+                          href={gov.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-1.5 border border-primary-200 text-sm font-medium rounded text-primary-700 bg-primary-50 hover:bg-primary-100 transition-colors"
+                        >
+                          View Official Programme
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </Card>
               ))}

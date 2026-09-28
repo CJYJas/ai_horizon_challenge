@@ -122,7 +122,7 @@ def test_phase_5_abc_enterprise_pipeline(monkeypatch):
     assert len(recs) > 0
     # The scenario has whatsapp/fragmented + CRM needs, should match Freshdesk, Freshchat or Lark
     matched_ids = [r.product_id for r in recs]
-    assert any(p_id in ["freshdesk", "freshchat", "lark"] for p_id in matched_ids)
+    assert any(p_id in ["freshdesk", "freshchat", "lark", "freshsales"] for p_id in matched_ids)
     
     # Verify gov support
     assert len(gov) > 0
