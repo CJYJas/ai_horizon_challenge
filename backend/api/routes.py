@@ -23,6 +23,13 @@ from backend.scoring.engine import (
 from backend.solution_matching.matcher import run_solution_matcher
 from backend.data_loaders import load_exabytes_products, load_supporting_rules
 from backend.api.lead_helpers import format_lead_label, normalize_sales_brief
+from backend.services.demo_service import (
+    is_demo_assessment,
+    handle_demo_answer,
+    generate_demo_diagnosis,
+    generate_demo_report,
+)
+
 
 router = APIRouter()
 
@@ -81,6 +88,15 @@ def add_answer(id: str, req: AnswerRequest, db: Session = Depends(get_session), 
         db.commit()
         db.refresh(assessment)
         
+    if is_demo_assessment(assessment):
+        return handle_demo_answer(
+            assessment=assessment,
+            answer_text=str(req.answer),
+            question_text=req.question_text,
+            question_topic=req.question_topic,
+            db=db,
+        )
+
     # Append answer
     answers = list(assessment.answers or [])
     new_answer = Answer(
@@ -144,6 +160,17 @@ def get_diagnosis(id: str, db: Session = Depends(get_session), llm = Depends(get
             maturity_gap_explanation=(assessment.diagnosis.get("narrative_report") or {}).get("maturity_gap_explanation")
         )
         
+    if is_demo_assessment(assessment):
+        diagnosis_data = generate_demo_diagnosis(assessment, db, llm)
+        return DiagnosisResponse(
+            top_pain_points=[TopPainPoint(**p) for p in diagnosis_data["pain_points"]],
+            maturity_scores=diagnosis_data["maturity_scores"],
+            recommendations=[Recommendation(**r) for r in diagnosis_data["recommendations"]],
+            government_support=[GovernmentSupportMatch(**g) for g in diagnosis_data["government_support"]],
+            lead_score=diagnosis_data["lead_score"],
+            maturity_gap_explanation=None
+        )
+
     # Run core diagnosis logic via service layer
     diagnosis_data = generate_diagnosis(assessment, llm)
     
@@ -255,10 +282,15 @@ def get_report(id: str, db: Session = Depends(get_session), llm = Depends(get_ll
     cached_report = (assessment.diagnosis or {}).get("narrative_report")
     if cached_report:
         report = StrategistOutput(**cached_report)
+    elif is_demo_assessment(assessment):
+        report = generate_demo_report(assessment, db, llm)
     else:
         # Generate the report via the service layer
-        report = generate_report(assessment, llm)
-        assessment.diagnosis = {**assessment.diagnosis, "narrative_report": report.model_dump()}
+        try:
+            report = generate_report(assessment, llm)
+            assessment.diagnosis = {**assessment.diagnosis, "narrative_report": report.model_dump()}
+        except Exception:
+            report = generate_demo_report(assessment, db, llm)
         
     # Save the sales brief reasons and the full brief to DB (with display-friendly fields)
     assessment.lead_score_reasons = report.sales_brief.why_this_lead_is_hot

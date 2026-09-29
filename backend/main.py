@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.routes import router
+from backend.api.demo import demo_router
 from backend.database import create_db_and_tables
 from contextlib import asynccontextmanager
 
@@ -22,3 +23,5 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(demo_router)
+

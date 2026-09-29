@@ -22,3 +22,9 @@ def load_supporting_rules() -> SupportingRules:
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return SupportingRules(**data)
+
+def load_demo_case() -> dict:
+    file_path = os.path.join(DATA_DIR, "demo_case.json")
+    with open(file_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+

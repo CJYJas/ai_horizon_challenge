@@ -10,15 +10,27 @@ const client = axios.create({
 });
 
 export const api = {
+  getDemoCase: async () => {
+    const res = await client.get('/demo/case');
+    return res.data;
+  },
+
+  createDemoAssessment: async (profile) => {
+    const res = await client.post('/demo/assessments', profile ? { company_profile: profile } : {});
+    return res.data;
+  },
+
   createAssessment: async (profile) => {
     const res = await client.post('/assessments', { company_profile: profile });
     return res.data;
   },
   
   submitAnswer: async (id, answer, questionText, questionTopic) => {
-    const res = await client.post(`/assessments/${id}/answers`, { answer, question_text: questionText, question_topic: questionTopic });
+    const endpoint = id && id.startsWith('demo-') ? `/demo/assessments/${id}/answers` : `/assessments/${id}/answers`;
+    const res = await client.post(endpoint, { answer, question_text: questionText, question_topic: questionTopic });
     return res.data;
   },
+
   
   getDiagnosis: async (id) => {
     const res = await client.get(`/assessments/${id}/diagnosis`);

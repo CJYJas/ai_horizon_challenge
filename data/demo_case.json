@@ -1,0 +1,156 @@
+{
+  "company_profile": {
+    "company_name": "ABC Enterprise",
+    "industry": "Retail",
+    "employee_count": 8,
+    "current_digital_tools": ["whatsapp", "spreadsheet"],
+    "main_operational_problems": ["Customer orders are tracked across WhatsApp and spreadsheets"],
+    "email": "contact@abcenterprise.com",
+    "phone": "+60 12-345 6789"
+  },
+  "dialogue_steps": [
+    {
+      "step": 0,
+      "type": "initial_question",
+      "question_text": "Which tools, apps, or manual steps do you currently use to run your most important daily workflow?",
+      "question_topic": "tools_workflow",
+      "expected_answer": "WhatsApp and spreadsheets"
+    },
+    {
+      "step": 1,
+      "type": "follow_up_1",
+      "question_text": "How many hours per week does your team spend handling customer enquiries and orders?",
+      "question_topic": "workload",
+      "reason": "Customer order tracking bottleneck across manual channels requires workload quantification.",
+      "expected_answer": "About 20 hours a week"
+    },
+    {
+      "step": 2,
+      "type": "follow_up_2",
+      "question_text": "Do you lose enquiries or orders because multiple staff members handle WhatsApp messages separately?",
+      "question_topic": "outcome",
+      "reason": "Need to verify if fragmented communication leads to dropped orders and lost revenue.",
+      "expected_answer": "Yes, we miss messages regularly"
+    }
+  ],
+  "diagnosis": {
+    "hypotheses": [
+      "Customer-order management bottleneck across WhatsApp and spreadsheets"
+    ],
+    "pain_points": [
+      {
+        "problem": "Customer orders are tracked across WhatsApp and spreadsheets",
+        "root_cause": "No centralised order management system",
+        "evidence": [
+          "WhatsApp and spreadsheets",
+          "About 20 hours a week",
+          "Yes, we miss messages regularly"
+        ],
+        "business_impact": "Missed enquiries reduce revenue and damage customer retention",
+        "impact_estimate": "26000",
+        "urgency": "medium",
+        "priority_rank": 1
+      }
+    ],
+    "maturity_scores": {
+      "digital_presence": 2.0,
+      "productivity": 2.0,
+      "customer_management": 2.0,
+      "data_security": 1.0,
+      "ai_readiness": 1.0
+    },
+    "overall_maturity": 1.64,
+    "urgency": "medium",
+    "priority_before_sim": 5,
+    "lead_score_before_sim": 33.24,
+    "product_recommendation_id": "freshsales",
+    "government_support_id": "smecorp_sfsme_2_0"
+  },
+  "impact_simulation": {
+    "default_hours_per_week": 20,
+    "default_hourly_rate": 25,
+    "default_automation_pct": 50,
+    "annual_opportunity_cost": 26000.0,
+    "recovered_hours_per_year": 520.0,
+    "recovered_value_per_year": 13000.0,
+    "lead_score_after_sim": 70.74,
+    "priority_after_sim": 2
+  },
+  "report": {
+    "pain_point_explanations": [
+      {
+        "problem": "Customer orders are tracked across WhatsApp and spreadsheets",
+        "root_cause_explanation": "Customer orders and enquiries arrive over personal WhatsApp chats without a central database, forcing staff to manually transcribe order details into standalone spreadsheets.",
+        "why_it_matters": "Fragmented communication leads to 20 hours/week wasted on manual coordination, frequent missed messages, delayed responses, and direct revenue loss from dropped sales."
+      }
+    ],
+    "roadmap_narrative": {
+      "phase_1": "Phase 1 (Months 1-2): Centralise customer interactions by deploying Freshsales CRM to unify WhatsApp and order tracking into a single shared inbox and pipeline.",
+      "phase_2": "Phase 2 (Months 3-4): Automate repetitive workflows including order status updates, lead capture, and payment notifications to reduce manual labour by 50%.",
+      "phase_3": "Phase 3 (Months 5-6): Leverage AI-powered insights and smart customer segmentation to increase customer retention and scale sales throughput without adding headcount."
+    },
+    "sme_report_summary": "The assessment highlights customer order management fragmentation as the primary bottleneck for ABC Enterprise. Operating across WhatsApp and spreadsheets costs approximately RM26,000 annually in manual labour while creating order tracking vulnerabilities. Adopting Freshsales CRM through the SFSME 2.0 matching grant provides a structured pathway to recover 520 hours per year and protect recurring revenue.",
+    "sales_brief": {
+      "one_line_hook": "ABC Enterprise is losing approximately RM26,000 annually in team time and dropping customer orders due to manual WhatsApp-and-spreadsheet workflows.",
+      "why_this_lead_is_hot": [
+        "High operational pain: 20 hours/week lost to manual WhatsApp order handling",
+        "Revenue leakage: Dropped enquiries due to fragmented communication channels",
+        "Clear digitalisation opportunity: Moving from spreadsheets to Freshsales CRM",
+        "Grant-ready: Potentially eligible for SFSME 2.0 matching grant (up to RM5,000)"
+      ],
+      "recommended_approach": "Lead with the time-saving and revenue protection angle rather than software features. Walk through how centralising WhatsApp conversations into Freshsales stops lost orders and frees up 10 hours of staff time each week.",
+      "sme_situation_summary": "Retail business with 8 staff handling high enquiry volume on WhatsApp. Spreadsheets cause tracking blind spots.",
+      "suggested_conversation_angle": "Focus on recovered labour (RM13,000/yr) and zero missed customer messages."
+    },
+    "product_rationales": [
+      {
+        "product_id": "freshsales",
+        "observed_evidence": [
+          "About 20 hours a week",
+          "Yes, we miss messages regularly",
+          "WhatsApp and spreadsheets"
+        ],
+        "why_suitable": "Freshsales consolidates multi-staff WhatsApp interactions and customer orders into an omnichannel CRM, eliminating spreadsheet transcription errors and lost enquiries.",
+        "relevant_capabilities": [
+          "Omnichannel WhatsApp inbox",
+          "Visual deal and order pipeline",
+          "Automated customer reminders"
+        ],
+        "implementation_suggestion": "Migrate customer contact list from spreadsheets and configure team WhatsApp integration in Week 1.",
+        "prerequisites": [
+          "Existing WhatsApp Business number",
+          "Customer spreadsheet export"
+        ],
+        "expected_outcome": "50% reduction in manual customer coordination time and 100% enquiry capture rate."
+      }
+    ],
+    "sales_playbook": {
+      "situation_summary": "ABC Enterprise is an 8-person retail business spending 20 hours/week manually routing WhatsApp enquiries into spreadsheets with frequent dropped orders.",
+      "discovery_questions": [
+        "When two staff members reply to the same customer on WhatsApp, how do you prevent confusion or double-ordering?",
+        "How much revenue do you estimate slips through the cracks each month from unreplied WhatsApp enquiries?",
+        "If you could give your team back 10 hours every week from spreadsheet updates, what high-value tasks would they focus on?"
+      ],
+      "talk_track": [
+        "You mentioned your team spends 20 hours a week tracking orders across WhatsApp and spreadsheets.",
+        "That represents over RM26,000 a year in staff time, and more importantly, customer messages are slipping through.",
+        "Freshsales gives your entire team one shared WhatsApp inbox and order pipeline so no customer is ever missed.",
+        "With the SFSME 2.0 grant covering up to 50%, the net investment is minimal while giving you back 520 hours a year."
+      ],
+      "likely_objections": [
+        "Our team is used to WhatsApp and might resist learning a complex new software.",
+        "We don't have dedicated IT staff to set up and maintain a CRM."
+      ],
+      "objection_responses": [
+        "Freshsales connects directly to WhatsApp so your staff continues chatting normally, but conversations are automatically logged in one shared team board.",
+        "Exabytes provides turnkey onboarding and local Malaysian support, ensuring your team is fully operational within 3 days without needing IT staff."
+      ],
+      "next_actions": [
+        "Schedule a 15-minute live demo showing the WhatsApp-to-Freshsales sync.",
+        "Assist with SME Corp SFSME 2.0 grant eligibility verification.",
+        "Prepare a pilot migration plan for spreadsheet customer data."
+      ]
+    },
+    "maturity_gap_explanation": "ABC Enterprise scored lowest in Data & Security (1.0) and AI Readiness (1.0) due to operating without a centralized database or authentication controls, relying entirely on ad-hoc spreadsheets and unencrypted personal messaging apps."
+  }
+}

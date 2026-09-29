@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bot, ArrowRight, Loader2 } from 'lucide-react';
+import { Bot, ArrowRight, Loader2, Zap, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { api } from '../api/client';
@@ -11,6 +11,7 @@ export function Assessment() {
   const [step, setStep] = useState('profile'); // 'profile', 'chat', 'loading'
   const [assessmentId, setAssessmentId] = useState(null);
   const [profile] = useState(() => location.state?.company_profile || null);
+  const isDemo = Boolean(location.state?.is_demo || profile?.company_name === 'ABC Enterprise');
 
   // Chat state
   const [question, setQuestion] = useState("");
@@ -23,11 +24,26 @@ export function Assessment() {
     if (!profile) navigate('/', { replace: true });
   }, [navigate, profile]);
 
+  const getDemoSuggestedAnswer = (turnIndex) => {
+    switch (turnIndex) {
+      case 0:
+        return 'WhatsApp and spreadsheets';
+      case 1:
+        return 'About 20 hours a week';
+      case 2:
+        return 'Yes, we miss messages regularly';
+      default:
+        return '';
+    }
+  };
+
   const handleStart = async (e) => {
     e.preventDefault();
     setStep('loading');
     try {
-      const res = await api.createAssessment(profile);
+      const res = isDemo
+        ? await api.createDemoAssessment(profile)
+        : await api.createAssessment(profile);
       setAssessmentId(res.assessment_id);
       setQuestion(res.initial_question);
       setQuestionTopic(res.initial_question_topic);
@@ -53,7 +69,9 @@ export function Assessment() {
     try {
       let activeId = assessmentId;
       if (!activeId && profile) {
-        const createRes = await api.createAssessment(profile);
+        const createRes = isDemo
+          ? await api.createDemoAssessment(profile)
+          : await api.createAssessment(profile);
         activeId = createRes.assessment_id;
         setAssessmentId(activeId);
       }
@@ -71,7 +89,9 @@ export function Assessment() {
       if (err.response?.status === 404 && profile) {
         try {
           // Re-create session on 404 to avoid getting stuck
-          const createRes = await api.createAssessment(profile);
+          const createRes = isDemo
+            ? await api.createDemoAssessment(profile)
+            : await api.createAssessment(profile);
           setAssessmentId(createRes.assessment_id);
           const res = await api.submitAnswer(createRes.assessment_id, currentAnswer, currentQuestion, questionTopic);
           if (res.is_complete) {
@@ -97,7 +117,9 @@ export function Assessment() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-          <p className="text-gray-600">Initializing AI Consultant...</p>
+          <p className="text-gray-600">
+            {isDemo ? 'Initializing Controlled Demo Consultant...' : 'Initializing AI Consultant...'}
+          </p>
         </div>
       </div>
     );
@@ -116,12 +138,30 @@ export function Assessment() {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Smart Assessment</h2>
-            <p className="text-gray-500 text-sm">Adaptive diagnostic interview</p>
+            <p className="text-gray-500 text-sm">
+              {isDemo ? 'Controlled Demo Interview (ABC Enterprise)' : 'Adaptive diagnostic interview'}
+            </p>
           </div>
+
+          {isDemo && (
+            <span className="ml-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+              <Zap className="w-3.5 h-3.5 text-amber-600" /> Hackathon Demo Mode
+            </span>
+          )}
         </div>
 
         {step === 'profile' && (
           <Card>
+            {isDemo && (
+              <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>Controlled scenario from <strong>docs/mock_flow.md</strong> loaded.</span>
+                </div>
+                <span className="bg-amber-200 text-amber-900 font-mono px-2 py-0.5 rounded text-[11px]">3-turn sequence</span>
+              </div>
+            )}
+
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Company profile received</h3>
             <p className="text-sm text-gray-500 mb-6">We will use these details as context and only ask about your operations.</p>
             <form onSubmit={handleStart} className="space-y-4">
@@ -132,7 +172,10 @@ export function Assessment() {
                 <div><dt className="text-gray-500">Contact</dt><dd className="font-semibold text-gray-900">{profile.email} · {profile.phone}</dd></div>
               </dl>
               <div className="pt-4 flex justify-end">
-                <Button type="submit">
+                <Button 
+                  type="submit"
+                  className={isDemo ? 'bg-amber-600 hover:bg-amber-700 text-white' : ''}
+                >
                   Begin Analysis
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
@@ -168,8 +211,28 @@ export function Assessment() {
                     {question}
                   </p>
 
+                  {/* Demo Helper Prompt Fill Pill */}
+                  {isDemo && getDemoSuggestedAnswer(chatHistory.length) && (
+                    <div className="mb-4 flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-900">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <Zap className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                        <span className="font-semibold text-amber-950 flex-shrink-0">Demo Answer:</span>
+                        <span className="text-amber-800 truncate">
+                          "{getDemoSuggestedAnswer(chatHistory.length)}"
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAnswer(getDemoSuggestedAnswer(chatHistory.length))}
+                        className="text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium px-3 py-1.5 rounded transition-colors whitespace-nowrap ml-3 flex-shrink-0"
+                      >
+                        Quick Fill
+                      </button>
+                    </div>
+                  )}
+
                   {/* Quick Suggestion Pills for Outcome */}
-                  {(questionTopic === 'outcome' || (question && question.toLowerCase().includes('improve'))) && (
+                  {!isDemo && (questionTopic === 'outcome' || (question && question.toLowerCase().includes('improve'))) && (
                     <div className="mb-4">
                       <p className="text-xs text-gray-500 mb-2 font-medium">Quick suggestions (or type any custom goal below):</p>
                       <div className="flex flex-wrap gap-2">
@@ -206,7 +269,7 @@ export function Assessment() {
                       <Button 
                         type="submit" 
                         disabled={!answer.trim() || isSubmitting}
-                        className="py-1.5 px-4"
+                        className={`py-1.5 px-4 ${isDemo ? 'bg-amber-600 hover:bg-amber-700 text-white' : ''}`}
                       >
                         {isSubmitting ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
