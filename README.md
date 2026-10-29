@@ -161,6 +161,147 @@ JSON configuration files act as the **single source of truth** for products and 
 
 ---
 
+## 💻 Getting Started
+
+### 📋 Prerequisites & What Is Needed
+
+Before setting up the project, ensure you have the following installed on your machine:
+
+* **Git**: Version control to clone the repository.
+* **Python**: Python 3.10+ (tested on Python 3.13).
+* **Node.js & npm**: Node.js 18+ or 20+ (with npm) for the React/Vite frontend.
+* **LLM API Key**: Either an **OpenAI API Key** (`OPENAI_API_KEY`) or an **OpenRouter API Key** (`OPENROUTER_API_KEY`).
+
+---
+
+### 📥 1. Clone the Repository
+
+Clone the project repository using Git:
+
+```bash
+git clone https://github.com/CJYJas/ai_horizon_challenge.git
+cd ai_horizon_challenge
+```
+
+---
+
+### ⚙️ 2. Environment Configuration
+
+The backend reads configuration and API keys from a `.env` file located in `backend/.env`.
+
+A template file [`.env.example`](backend/.env.example) is provided. Create your `.env` file:
+
+```bash
+# Copy template to .env
+cp backend/.env.example backend/.env
+```
+
+Open `backend/.env` and supply your API key:
+
+```env
+OPENAI_API_KEY="sk-..."
+# Or if using OpenRouter:
+# OPENROUTER_API_KEY="sk-or-v1-..."
+```
+
+---
+
+### 🐍 3. Backend Setup & Dependencies (`requirements.txt`)
+
+Python dependencies are defined in both the root [`requirements.txt`](requirements.txt) and [`backend/requirements.txt`](backend/requirements.txt).
+
+1. **Create and activate a virtual environment (recommended):**
+
+   * **Windows (PowerShell):**
+     ```powershell
+     python -m venv venv
+     .\venv\Scripts\Activate.ps1
+     ```
+
+   * **macOS / Linux:**
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+
+2. **Install Python dependencies:**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   **Core packages included in [`requirements.txt`](requirements.txt):**
+   * `fastapi`: High-performance asynchronous web framework for REST endpoints
+   * `uvicorn[standard]`: Production ASGI web server
+   * `sqlmodel`: ORM combining SQLAlchemy and Pydantic for SQLite persistence
+   * `pydantic`: Schema validation and structured LLM output modeling
+   * `langchain` & `langchain-openai`: LLM orchestration, structured chat prompt pipelines
+   * `python-dotenv`: Environment variable loader
+   * `httpx`: Async HTTP client required for FastAPI integration testing
+   * `pytest`: Test runner for automated unit and integration tests
+
+---
+
+### 🎨 4. Frontend Setup
+
+The frontend is built using React, Vite, and Tailwind CSS.
+
+1. Navigate to the `frontend` folder:
+   ```bash
+   cd frontend
+   ```
+
+2. Install Node dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Return to the project root:
+   ```bash
+   cd ..
+   ```
+
+---
+
+### 🚀 5. How to Run
+
+To run the complete application, launch the backend and frontend servers in two separate terminal windows.
+
+#### A. Run the Backend API Server
+
+From the project root:
+
+```bash
+python -m uvicorn backend.main:app --reload --port 8000
+```
+
+* **Backend API:** [http://localhost:8000](http://localhost:8000)
+* **Interactive API Docs (Swagger UI):** [http://localhost:8000/docs](http://localhost:8000/docs)
+* **ReDoc Documentation:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+#### B. Run the Frontend Development Server
+
+From the project root (in a separate terminal):
+
+```bash
+cd frontend
+npm run dev
+```
+
+* **Frontend Web Application:** [http://localhost:5173](http://localhost:5173)
+
+---
+
+### 🧪 6. Running Tests
+
+Run the automated test suite with `pytest` from the project root:
+
+```bash
+python -m pytest backend/tests -v
+```
+
+---
+
 ## 🔐 Reliability & Guardrails
 
 The platform is designed so AI output cannot silently override business logic.

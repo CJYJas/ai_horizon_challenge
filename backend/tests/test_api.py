@@ -5,6 +5,7 @@ from sqlmodel import Session, SQLModel, create_engine
 
 from backend.main import app
 from backend.database import get_session
+from backend.models import SMEAssessment
 
 # Ensure we have a real LLM API key as requested by the user
 if not os.getenv("OPENAI_API_KEY"):
@@ -16,15 +17,15 @@ def get_session_override():
     with Session(engine) as session:
         yield session
 
-app.dependency_overrides[get_session] = get_session_override
-
 client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def setup_db():
+    app.dependency_overrides[get_session] = get_session_override
     SQLModel.metadata.create_all(engine)
     yield
     SQLModel.metadata.drop_all(engine)
+    app.dependency_overrides.clear()
 
 def test_api_pipeline():
     # 1. Start Assessment

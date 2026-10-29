@@ -13,15 +13,16 @@ def get_test_session():
         yield session
 
 
-app.dependency_overrides[get_session] = get_test_session
 client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
 def setup_test_db():
+    app.dependency_overrides[get_session] = get_test_session
     SQLModel.metadata.create_all(test_engine)
     yield
     SQLModel.metadata.drop_all(test_engine)
+    app.dependency_overrides.clear()
 
 
 def test_demo_scenario_full_pipeline():
